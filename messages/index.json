@@ -1,0 +1,7 @@
+{
+  "contenful": {
+    "promptFileName": "Enter File Name",
+    "promptFilePath": "Enter File Path (eg: /home/admin/filePath)",
+    "promptDescription": "For Contentful export, refer this doc -> https://www.contentful.com/developers/docs/tutorials/cli/import-and-export/"
+  }
+}
