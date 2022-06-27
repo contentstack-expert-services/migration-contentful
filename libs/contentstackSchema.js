@@ -124,7 +124,7 @@ function richText(data) {
   for (const fields of data.contentNames) {
     rFields.push(fields);
 
-    if (rFields.length < 25) {
+    if (rFields.length < 9) {
       referenceFields = rFields;
     } else {
       referenceFields = rFields.slice(0, 9);

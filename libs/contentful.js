@@ -88,6 +88,7 @@ ExtractContent.prototype = {
                     contentUid: content.sys.id
                       .replace(/([A-Z])/g, "_$1")
                       .toLowerCase(),
+                    contentDescription: content.description,
                     contentfulID: content.sys.id,
                     ...valueType,
                     ...valueEditor,

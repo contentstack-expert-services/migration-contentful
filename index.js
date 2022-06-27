@@ -25,9 +25,9 @@ var moduleList = [
   "language",
   "contentful",
   "assets",
-  "entries",
-  "environments",
   "contenttype",
+  "environments",
+  "entries",
   "contentfulLogs",
 ];
 var _export = [];
