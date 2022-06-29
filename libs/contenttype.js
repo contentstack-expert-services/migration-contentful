@@ -100,7 +100,9 @@ ExtractContent.prototype = {
                     ...uidUrl,
                     ...contentTypeMapper(data),
                   ].filter((el) => el !== null),
-                  description: `Schema for ${file.split(".")[0]}`,
+                  description:
+                    uid.contentDescription ??
+                    `Schema for ${file.split(".")[0]}`,
                   options: {
                     is_page: true,
                     singleton: false,

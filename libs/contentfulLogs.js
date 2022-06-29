@@ -86,7 +86,10 @@ ExtractContentFul.prototype = {
               content_type: getUniqueListBy(fieldArray, "title"),
             };
             helper.writeFile(
-              path.join(logsFolder, `logs_${new Date().toISOString()}.json`),
+              path.join(
+                logsFolder,
+                `logs_${new Date().toISOString().replace(/[.:]/g, "-")}.json`
+              ),
               JSON.stringify(testingObject, null, 4)
             );
           }
