@@ -650,7 +650,10 @@ function link(data) {
 function reference(data) {
   let singleRef;
   // checking for single refernece
-  if (data.widgetId === "entryLinkEditor") {
+  if (
+    data.widgetId === "entryLinkEditor" ||
+    data.widgetId === "entryCardEditor"
+  ) {
     singleRef = false;
   } else {
     singleRef = true;
