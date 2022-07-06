@@ -3,16 +3,16 @@ var path = require("path"),
   fs = require("fs"),
   inquirer = require("inquirer"),
   sequence = require("when/sequence"),
-  helper = require("./utils/helper");
+  helper = require("../utils/helper");
 
 _ = require("lodash");
-const Messages = require("./utils/message");
+const Messages = require("../utils/message");
 const messages = new Messages("contenful").msgs;
 
-config = require("./config");
-global.errorLogger = require("./utils/logger")("error").error;
-global.successLogger = require("./utils/logger")("success").log;
-global.warnLogger = require("./utils/logger")("warn").log;
+config = require("../config");
+global.errorLogger = require("../utils/logger")("error").error;
+global.successLogger = require("../utils/logger")("success").log;
+global.warnLogger = require("../utils/logger")("warn").log;
 
 var moduleList = [
   "defaultLocale",
@@ -56,7 +56,7 @@ const migFunction = () => {
         global.filePath = undefined;
         for (var i = 0, total = moduleList.length; i < total; i++) {
           //to export all the modules we want to import
-          var ModuleExport = require("./libs/" + moduleList[i] + ".js");
+          var ModuleExport = require("../libs/" + moduleList[i] + ".js");
           var moduleExport = new ModuleExport();
           _export.push(
             (function (moduleExport) {
