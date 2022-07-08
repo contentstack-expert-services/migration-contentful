@@ -1,13 +1,7 @@
 var path = require("path"),
   chalk = require("chalk"),
-  fs = require("fs"),
   inquirer = require("inquirer"),
-  sequence = require("when/sequence"),
-  helper = require("../utils/helper");
-
-_ = require("lodash");
-const Messages = require("../utils/message");
-const messages = new Messages("contenful").msgs;
+  sequence = require("when/sequence");
 
 config = require("../config");
 global.errorLogger = require("../utils/logger")("error").error;
@@ -37,7 +31,7 @@ const migFunction = (contentful_file) => {
     .prompt({
       type: "input",
       name: "csPrefix",
-      message: messages.promptPrefix,
+      message: "Enter prefix",
       default: "cs",
       validate: (csPrefix) => {
         let format = /[!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?]+/;
