@@ -32,7 +32,7 @@ var moduleList = [
 ];
 var _export = [];
 
-const migFunction = () => {
+const migFunction = (contentful_file) => {
   inquirer
     .prompt({
       type: "input",
@@ -53,6 +53,9 @@ const migFunction = () => {
     })
     .then(async (answer) => {
       try {
+        config.contentful_filename = contentful_file;
+
+        console.log("child", contentful_file);
         global.filePath = undefined;
         for (var i = 0, total = moduleList.length; i < total; i++) {
           //to export all the modules we want to import
@@ -82,23 +85,6 @@ const migFunction = () => {
             `See Logs folder for changed UIDs here`,
             chalk.yellow(`${path.join(process.cwd(), "logs")}`)
           );
-
-          //   var stackClone = new StackCloneCommand();
-
-          //   const defaultLocale = helper.readFile(
-          //     path.join(
-          //       process.cwd(),
-          //       "csMigrationData/defaultLocale/defaultLocale.json"
-          //     )
-          //   );
-          //   const masterLocale = Object.values(defaultLocale)
-          //     .map((localeId) => localeId.code)
-          //     .join();
-          //   try {
-          //     // await stackClone.run(masterLocale); // to run to fetch stack from CS
-          //   } catch (e) {
-          //     console.log("error message", e);
-          //   }
         })
         .catch(function (error) {
           console.log("thrown inside catch block", error);
@@ -107,82 +93,4 @@ const migFunction = () => {
     });
 };
 
-// to check if file exist or not
-const fileCheck = (csFileName, csFilePath) => {
-  const allowedExtension = ".json";
-  const extension = path.extname(config.contentful_filename);
-  if (allowedExtension === extension) {
-    if (fs.existsSync(config.contentful_filename)) {
-      migFunction();
-    } else {
-      console.log(
-        chalk.red(`Please check`),
-        chalk.yellow(`File name "${csFileName}"`),
-        chalk.red(`or`),
-        chalk.yellow(`Filepath "${csFilePath}"`),
-        chalk.red(`are valid or not and try again!`)
-      );
-      contentfulMigration();
-    }
-  } else {
-    console.log(chalk.red("use only .json extension file"));
-  }
-};
-
-const contentfulMigration = async () => {
-  console.log(chalk.hex("#6C5CE7")(messages.promptDescription));
-
-  const question = [
-    {
-      type: "input",
-      name: "csFileName",
-      message: messages.promptFileName,
-      validate: (csFileName) => {
-        if (!csFileName || csFileName.trim() === "") {
-          console.log(chalk.red("Please insert file name!"));
-          return false;
-        }
-        this.name = csFileName;
-        return true;
-      },
-    },
-    {
-      type: "input",
-      name: "csFilePath",
-      message: messages.promptFilePath,
-      validate: (csFilePath) => {
-        if (!csFilePath || csFilePath.trim() === "") {
-          console.log(chalk.red("Please insert filepath!"));
-          return false;
-        }
-        this.name = csFilePath;
-        return true;
-      },
-    },
-  ];
-
-  inquirer.prompt(question).then(async (answer) => {
-    try {
-      const allowedExtension = ".json";
-      if (path.extname(answer.csFileName)) {
-        const extension = path.extname(answer.csFileName);
-        if (answer.csFileName) {
-          if (extension === allowedExtension) {
-            config.contentful_filename = `${answer.csFilePath}/${answer.csFileName}`;
-            fileCheck(answer.csFileName, answer.csFilePath.replace(/\/$/, ""));
-          } else {
-            config.contentful_filename = `${answer.csFilePath}/${answer.csFileName}.json`;
-            fileCheck(answer.csFileName, answer.csFilePath.replace(/\/$/, ""));
-          }
-        }
-      } else {
-        config.contentful_filename = `${answer.csFilePath}/${answer.csFileName}.json`;
-        fileCheck(answer.csFileName, answer.csFilePath.replace(/\/$/, ""));
-      }
-    } catch (error) {
-      console.log(chalk.red(error.message));
-    }
-  });
-};
-
-module.exports = contentfulMigration();
+module.exports = migFunction(contentful_file);
