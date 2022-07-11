@@ -18,6 +18,7 @@ var moduleList = [
   "webhooks",
   "language",
   "contentful",
+  "createEntries",
   "assets",
   "contenttype",
   "environments",
