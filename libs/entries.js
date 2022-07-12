@@ -94,7 +94,7 @@ ExtractEntries.prototype = {
                   .toLowerCase()
               )
             );
-            // create JSON file in the created folders with en-us.json name
+            // create JSON file in the created folders with locale name
             helper.writeFile(
               path.join(
                 entryFolderPath,

@@ -78,7 +78,7 @@ const migFunction = (contentful_file) => {
 
           console.log(
             `See Logs folder for changed UIDs here`,
-            chalk.yellow(`${path.join(process.cwd(), "logs")}`)
+            chalk.yellow(`${path.join(process.cwd(), "logs")}\n`)
           );
         })
         .catch(function (error) {
