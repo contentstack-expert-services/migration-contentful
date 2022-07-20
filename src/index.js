@@ -88,4 +88,4 @@ const migFunction = (contentful_file) => {
     });
 };
 
-module.exports = migFunction(contentful_file);
+module.exports = migFunction();
