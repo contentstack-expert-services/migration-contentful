@@ -4,7 +4,8 @@
  */
 var mkdirp = require("mkdirp"),
   path = require("path"),
-  fs = require("fs");
+  fs = require("fs"),
+  when = require("when");
 
 /**
  * Internal module Dependencies .
@@ -18,17 +19,7 @@ if (!fs.existsSync(entryFolderPath)) {
   mkdirp.sync(entryFolderPath);
 }
 
-function ExtractEntries() {
-  if (!fs.existsSync(path.join(config.data, config.json_filename))) {
-    fs.copyFile(
-      config.contentful_filename,
-      path.join(process.cwd(), config.data, config.json_filename),
-      (err) => {
-        if (err) throw console.log(err.message);
-      }
-    );
-  }
-}
+function ExtractEntries() {}
 
 ExtractEntries.prototype = {
   saveEntry: function (entry, prefix) {
@@ -97,9 +88,8 @@ ExtractEntries.prototype = {
     var self = this;
     return when.promise(function (resolve, reject) {
       //for reading json file and store in alldata
-      var alldata = helper.readFile(
-        path.join(config.data, config.json_filename)
-      );
+      var alldata = helper.readFile(config.contentful_filename);
+
       // to fetch all the entries from the json output
       var entries = alldata.entries;
       if (entries) {

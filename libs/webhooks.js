@@ -28,17 +28,7 @@ if (!fs.existsSync(webhooksFolderPath)) {
   helper.writeFile(path.join(webhooksFolderPath, webhooksConfig));
 }
 
-function ExtractWebhooks() {
-  if (!fs.existsSync(path.join(config.data, config.json_filename))) {
-    fs.copyFile(
-      config.contentful_filename,
-      path.join(process.cwd(), config.data, config.json_filename),
-      (err) => {
-        if (err) throw console.log(err.message);
-      }
-    );
-  }
-}
+function ExtractWebhooks() {}
 
 ExtractWebhooks.prototype = {
   customBar: null,
@@ -303,9 +293,8 @@ ExtractWebhooks.prototype = {
     var self = this;
     return when.promise(function (resolve, reject) {
       //for reading json file and store in alldata
-      var alldata = helper.readFile(
-        path.join(config.data, config.json_filename)
-      );
+      var alldata = helper.readFile(config.contentful_filename);
+
       // to fetch all the webhook from the json output
       var webhooks = alldata.webhooks;
       if (webhooks) {

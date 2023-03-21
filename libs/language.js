@@ -11,7 +11,6 @@ const chalk = require("chalk");
 const cliProgress = require("cli-progress");
 const colors = require("ansi-colors");
 
-const _ = require("lodash");
 /**
  * Internal module Dependencies .
  */
@@ -29,15 +28,7 @@ if (!fs.existsSync(languageFolderPath)) {
   helper.writeFile(path.join(languageFolderPath, languageConfig));
 }
 
-function ExtractLocale() {
-  // fs.copyFile(
-  //   config.contentful_filename,
-  //   path.join(process.cwd(), config.data, config.json_filename),
-  //   (err) => {
-  //     if (err) throw console.log(err.message);
-  //   }
-  // );
-}
+function ExtractLocale() {}
 
 ExtractLocale.prototype = {
   customBar: null,
@@ -88,9 +79,8 @@ ExtractLocale.prototype = {
     var self = this;
     return when.promise(function (resolve, reject) {
       //for reading json file and store in alldata
-      var alldata = helper.readFile(
-        path.join(config.data, config.json_filename)
-      );
+      var alldata = helper.readFile(config.contentful_filename);
+
       // to fetch all the locale from the json output
       var locales = alldata.locales;
       if (locales) {

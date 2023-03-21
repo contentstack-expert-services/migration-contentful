@@ -24,17 +24,7 @@ if (!fs.existsSync(extensionFolderPath)) {
   helper.writeFile(path.join(extensionFolderPath, extensionConfig));
 }
 
-function ExtractExtensions() {
-  if (!fs.existsSync(path.join(config.data, config.json_filename))) {
-    fs.copyFile(
-      config.contentful_filename,
-      path.join(process.cwd(), config.data, config.json_filename),
-      (err) => {
-        if (err) throw console.log(err.message);
-      }
-    );
-  }
-}
+function ExtractExtensions() {}
 
 ExtractExtensions.prototype = {
   saveAllExtension: function () {

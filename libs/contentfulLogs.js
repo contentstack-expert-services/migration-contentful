@@ -5,8 +5,8 @@
 var mkdirp = require("mkdirp"),
   path = require("path"),
   fs = require("fs"),
-  when = require("when");
-_ = require("lodash");
+  when = require("when"),
+  _ = require("lodash");
 /**
  * Internal module Dependencies .
  */
@@ -20,17 +20,7 @@ if (!fs.existsSync(logsFolder)) {
 }
 
 const { contentfulTypeMapper } = require("./contentfulTypeMapper");
-function ExtractContentFul() {
-  if (!fs.existsSync(path.join(config.data, config.json_filename))) {
-    fs.copyFile(
-      config.contentful_filename,
-      path.join(process.cwd(), config.data, config.json_filename),
-      (err) => {
-        if (err) throw console.log(err.message);
-      }
-    );
-  }
-}
+function ExtractContentFul() {}
 
 ExtractContentFul.prototype = {
   saveContentType: function (prefix) {
@@ -45,7 +35,6 @@ ExtractContentFul.prototype = {
           else {
             let jsonArray = [],
               fieldArray = [];
-
             files.forEach((file) => {
               let data = helper.readFile(
                 path.resolve(
@@ -57,8 +46,7 @@ ExtractContentFul.prototype = {
                 contentfulTypeMapper(data);
                 let title = file.split(".")[0];
                 title = title.charAt(0).toUpperCase() + title.slice(1);
-                if (uid.contentUid !== uid.contentfulID)
-                  // if (contentfulTypeMapper(data).length !== 0) {
+                if (uid.contentUid !== uid.contentfulID) {
                   jsonArray.push({
                     title: title.charAt(0).toUpperCase() + title.slice(1),
                     changed_schema_uid: [
@@ -69,7 +57,7 @@ ExtractContentFul.prototype = {
                     ],
                     // change_field_id: [...contentfulTypeMapper(data)],
                   });
-                // }
+                }
                 if (contentfulTypeMapper(data).length !== 0) {
                   fieldArray.push({
                     title: title.charAt(0).toUpperCase() + title.slice(1),

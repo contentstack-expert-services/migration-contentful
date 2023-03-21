@@ -1,4 +1,4 @@
-const messages = require("../contentfulMessages/index.json");
+const messages = require("../messages/index.json");
 
 class Messages {
   constructor(type) {

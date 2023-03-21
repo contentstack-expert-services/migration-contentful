@@ -24,15 +24,7 @@ if (!fs.existsSync(displayEntriesFolderPath)) {
   helper.writeFile(path.join(displayEntriesFolderPath, displayEntriesConfig));
 }
 
-function ExtractDisplayEntries() {
-  // fs.copyFile(
-  //   config.contentful_filename,
-  //   path.join(process.cwd(), config.data, config.json_filename),
-  //   (err) => {
-  //     if (err) throw console.log(err.message);
-  //   }
-  // );
-}
+function ExtractDisplayEntries() {}
 
 ExtractDisplayEntries.prototype = {
   saveDisplayEntry: function (entries) {
@@ -64,9 +56,8 @@ ExtractDisplayEntries.prototype = {
     var self = this;
     return when.promise(function (resolve, reject) {
       //for reading json file and store in alldata
-      var alldata = helper.readFile(
-        path.join(config.data, config.json_filename)
-      );
+      var alldata = helper.readFile(config.contentful_filename);
+
       // to fetch all the entries from the json output
       var entries = alldata.contentTypes;
       if (entries) {

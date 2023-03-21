@@ -24,15 +24,7 @@ if (!fs.existsSync(referneceFolderPath)) {
   helper.writeFile(path.join(referneceFolderPath, referenceConfig));
 }
 
-function ExtractReference() {
-  // fs.copyFile(
-  //   config.contentful_filename,
-  //   path.join(process.cwd(), config.data, config.json_filename),
-  //   (err) => {
-  //     if (err) throw console.log(err.message);
-  //   }
-  // );
-}
+function ExtractReference() {}
 
 ExtractReference.prototype = {
   saveReference: function (entries) {
@@ -60,9 +52,8 @@ ExtractReference.prototype = {
     var self = this;
     return when.promise(function (resolve, reject) {
       //for reading json file and store in alldata
-      var alldata = helper.readFile(
-        path.join(config.data, config.json_filename)
-      );
+      var alldata = helper.readFile(config.contentful_filename);
+
       // to fetch all the entries from the json output
       var entries = alldata.entries;
       if (entries) {

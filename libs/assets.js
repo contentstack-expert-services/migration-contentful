@@ -5,7 +5,7 @@
 var mkdirp = require("mkdirp"),
   path = require("path"),
   fs = require("fs"),
-  request = require("request"),
+  axios = require("axios"),
   guard = require("when/guard"),
   parallel = require("when/parallel"),
   when = require("when");
@@ -13,7 +13,6 @@ var mkdirp = require("mkdirp"),
 const cliProgress = require("cli-progress");
 const colors = require("ansi-colors");
 
-const _ = require("lodash");
 /**
  * Internal module Dependencies .
  */
@@ -22,7 +21,7 @@ var helper = require("../utils/helper");
 
 var assetConfig = config.modules.asset,
   assetFolderPath = path.resolve(config.data, assetConfig.dirName),
-  assetMasterFolderPath = path.resolve(config.data, "master"),
+  assetMasterFolderPath = path.resolve(process.cwd(), "logs", "assets"),
   failedJSON =
     helper.readFile(path.join(assetMasterFolderPath, "cs_failed.json")) || {};
 
@@ -30,8 +29,6 @@ if (!fs.existsSync(assetFolderPath)) {
   mkdirp.sync(assetFolderPath);
   helper.writeFile(path.join(assetFolderPath, assetConfig.fileName));
   mkdirp.sync(assetMasterFolderPath);
-  helper.writeFile(path.join(assetMasterFolderPath, assetConfig.fileName));
-  helper.writeFile(path.join(assetMasterFolderPath, assetConfig.masterfile));
   if (!fs.existsSync(path.join(config.data, config.json_filename))) {
     helper.writeFile(path.join(config.data, config.json_filename));
   }
@@ -40,8 +37,6 @@ if (!fs.existsSync(assetFolderPath)) {
     helper.writeFile(path.join(assetFolderPath, assetConfig.fileName));
   if (!fs.existsSync(assetMasterFolderPath)) {
     mkdirp.sync(assetMasterFolderPath);
-    helper.writeFile(path.join(assetMasterFolderPath, assetConfig.fileName));
-    helper.writeFile(path.join(assetMasterFolderPath, assetConfig.masterfile));
   }
 }
 
@@ -49,22 +44,8 @@ if (!fs.existsSync(assetFolderPath)) {
 var assetData = helper.readFile(
   path.join(assetFolderPath, assetConfig.fileName)
 );
-var assetMapping = helper.readFile(
-  path.join(assetMasterFolderPath, assetConfig.fileName)
-);
-var assetURLMapping = helper.readFile(
-  path.join(assetMasterFolderPath, assetConfig.masterfile)
-);
 
-function ExtractAssets() {
-  fs.copyFile(
-    config.contentful_filename,
-    path.join(process.cwd(), config.data, config.json_filename),
-    (err) => {
-      if (err) throw console.log(err.message);
-    }
-  );
-}
+function ExtractAssets() {}
 ExtractAssets.prototype = {
   customBar: null,
   initalizeLoader: function () {
@@ -85,124 +66,90 @@ ExtractAssets.prototype = {
   },
   saveAsset: function (assets, retryCount) {
     var self = this;
-    return when.promise(function (resolve, reject) {
-      var url = `https:${Object.values(assets.fields.file)[0].url}`;
-      var assetTitle = Object.values(assets.fields.title)[0];
-      var name = Object.values(assets.fields.file)[0].fileName;
-      if (fs.existsSync(path.resolve(assetFolderPath, assets.sys.id, name))) {
-        successLogger("asset already present " + "'" + assets.sys.id + "'");
-        resolve(assets.sys.id);
-      } else {
-        request.get(
-          {
-            url: url,
-            timeout: 60000,
-            encoding: "binary",
-          },
-          function (err, response, body) {
+    return when.promise(async function (resolve, reject) {
+      if (assets?.fields?.file) {
+        var url = `https:${Object.values(assets.fields.file)[0].url}`;
+        var assetTitle = Object.values(assets.fields.title)[0];
+        var name = Object.values(assets.fields.file)[0].fileName;
+        // var description = Object.values(assets?.fields?.description)[0] ?? "";
+        name = path.basename(name);
+        if (fs.existsSync(path.resolve(assetFolderPath, assets.sys.id, name))) {
+          successLogger("asset already present " + "'" + assets.sys.id + "'");
+          resolve(assets.sys.id);
+        } else {
+          try {
+            const response = await axios.get(url, {
+              responseType: "arraybuffer",
+            });
+            mkdirp.sync(path.resolve(assetFolderPath, assets.sys.id));
+            fs.writeFileSync(
+              path.join(assetFolderPath, assets.sys.id, name),
+              response.data
+            );
+            assetData[assets.sys.id] = {
+              uid: assets.sys.id,
+              urlPath: `/assets/${assets.sys.id}`,
+              status: true,
+              content_type: Object.values(assets.fields.file)[0].contentType,
+              file_size: `${Object.values(assets.fields.file)[0].details.size}`,
+              tag: assets.metadata.tags,
+              filename: name,
+              url: url,
+              is_dir: false,
+              parent_uid: null,
+              _version: 1,
+              title: assetTitle,
+              // description: description,
+              publish_details: [],
+            };
+
+            // to create JSON file of assets in same folder where it is downloaded
+            const assetVersionInfoFile = path.resolve(
+              assetFolderPath,
+              assets.sys.id,
+              `_contentstack_${assets.sys.id}.json`
+            );
+            //writing the json object in same created json file
+            helper.writeFile(
+              assetVersionInfoFile,
+              JSON.stringify(assetData[assets.sys.id], null, 4)
+            );
+
+            if (failedJSON[assets.sys.id]) {
+              delete failedJSON[assets.sys.id];
+            }
+
+            self.customBar.increment();
+          } catch (err) {
             if (err) {
               failedJSON[assets.sys.id] = err;
-              if (retryCount == 1) resolve(assets.sys.id);
-              else {
+              if (retryCount == 1) {
+                failedJSON[assets.sys.id] = {
+                  failedUid: assets.sys.id,
+                  name: assetTitle,
+                  url: url,
+                  file_size: `${
+                    Object.values(assets.fields.file)[0].details.size
+                  }`,
+                  reason_for_error: err,
+                };
+                helper.writeFile(
+                  path.join(assetMasterFolderPath, "cs_failed.json"),
+                  JSON.stringify(failedJSON, null, 4)
+                );
+                resolve(assets.sys.id);
+              } else {
                 self.saveAsset(assets, 1).then(function (results) {
                   resolve();
                 });
               }
-            } else {
-              if (response.statusCode != 200) {
-                var status = "status code: " + response.statusCode;
-                failedJSON[assets.sys.id] = status;
-                if (retryCount == 1) resolve(assets.sys.id);
-                else {
-                  self.saveAsset(assets, 1).then(function (results) {
-                    resolve();
-                  });
-                }
-              } else {
-                mkdirp.sync(path.resolve(assetFolderPath, assets.sys.id));
-                fs.writeFile(
-                  path.join(assetFolderPath, assets.sys.id, name),
-                  body,
-                  "binary",
-                  function (writeerror) {
-                    if (writeerror) {
-                      failedJSON[assets.sys.id] = writeerror;
-                      if (
-                        fs.existsSync(
-                          path.resolve(assetFolderPath, assets.sys.id)
-                        )
-                      ) {
-                        fs.unlinkSync(
-                          path.resolve(assetFolderPath, assets.sys.id)
-                        );
-                      }
-
-                      if (retryCount == 1) resolve(assets.sys.id);
-                      else {
-                        self.saveAsset(assets, 1).then(function (results) {
-                          resolve();
-                        });
-                      }
-                    } else {
-                      assetData[assets.sys.id] = {
-                        uid: assets.sys.id,
-                        status: true,
-                        content_type: Object.values(assets.fields.file)[0]
-                          .contentType,
-                        file_size: `${
-                          Object.values(assets.fields.file)[0].details.size
-                        }`,
-                        tag: assets.metadata.tags,
-                        filename: name,
-                        url: url,
-                        ACL: {
-                          roles: [],
-                          others: {
-                            read: false,
-                            create: false,
-                            update: false,
-                            delete: false,
-                            sub_acl: {
-                              read: false,
-                              create: false,
-                              update: false,
-                              delete: false,
-                              publish: false,
-                            },
-                          },
-                        },
-                        is_dir: false,
-                        parent_uid: null,
-                        _version: 1,
-                        title: assetTitle,
-                        publish_details: [],
-                      };
-                      // to create JSON file of assets in same folder where it is downloaded
-                      const assetVersionInfoFile = path.resolve(
-                        assetFolderPath,
-                        assets.sys.id,
-                        `_contentstack_${assets.sys.id}.json`
-                      );
-                      //writing the json object in same created json file
-                      helper.writeFile(
-                        assetVersionInfoFile,
-                        JSON.stringify(assetData[assets.sys.id], null, 4)
-                      );
-                      assetMapping[assets.sys.id] = "";
-                      assetURLMapping[url] = "";
-                      if (failedJSON[assets.sys.id]) {
-                        delete failedJSON[assets.sys.id];
-                      }
-                      // successLogger("exported asset " + "'" + assetTitle + "'");
-                    }
-                    self.customBar.increment();
-                    resolve(assets.sys.id);
-                  }
-                );
-              }
             }
           }
-        );
+          resolve(assets.sys.id);
+        }
+      } else {
+        self.customBar.increment();
+        resolve(assets.sys.id);
       }
     });
   },
@@ -236,14 +183,6 @@ ExtractAssets.prototype = {
             JSON.stringify(assetData, null, 4)
           );
           helper.writeFile(
-            path.join(assetMasterFolderPath, assetConfig.fileName),
-            JSON.stringify(assetMapping, null, 4)
-          );
-          helper.writeFile(
-            path.join(assetMasterFolderPath, assetConfig.masterfile),
-            JSON.stringify(assetURLMapping, null, 4)
-          );
-          helper.writeFile(
             path.join(assetMasterFolderPath, "cs_failed.json"),
             JSON.stringify(failedJSON, null, 4)
           );
@@ -260,9 +199,8 @@ ExtractAssets.prototype = {
     var self = this;
     return when.promise(function (resolve, reject) {
       //fetch all data from data.json file
-      var alldata = helper.readFile(
-        path.join(config.data, config.json_filename)
-      );
+      var alldata = helper.readFile(config.contentful_filename);
+
       // extract assets part from JSON
       var assets = alldata.assets;
       if (assets) {

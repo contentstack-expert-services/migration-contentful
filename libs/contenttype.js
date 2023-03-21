@@ -20,17 +20,7 @@ if (!fs.existsSync(contentstackFolderPath)) {
 }
 
 const { contentTypeMapper } = require("./contentTypeMapper");
-function ExtractContent() {
-  if (!fs.existsSync(path.join(config.data, config.json_filename))) {
-    fs.copyFile(
-      config.contentful_filename,
-      path.join(process.cwd(), config.data, config.json_filename),
-      (err) => {
-        if (err) throw console.log(err.message);
-      }
-    );
-  }
-}
+function ExtractContent() {}
 
 ExtractContent.prototype = {
   saveContentType: function () {

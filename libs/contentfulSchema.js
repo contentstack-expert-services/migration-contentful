@@ -44,7 +44,6 @@ var idArray = [
   "publish_details",
 ];
 
-const _ = require("lodash");
 // for Singleline
 function singleLine(data) {
   let replaceid, newId;
@@ -52,7 +51,7 @@ function singleLine(data) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
   } else {
-    newId = data.id;
+    newId = data.id.toLowerCase();
   }
 
   return {
@@ -69,7 +68,7 @@ function multiLine(data) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
   } else {
-    newId = data.id;
+    newId = data.id.toLowerCase();
   }
 
   return {
@@ -86,7 +85,7 @@ function richText(data) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
   } else {
-    newId = data.id;
+    newId = data.id.toLowerCase();
   }
 
   return {
@@ -103,7 +102,7 @@ function markdown(data) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
   } else {
-    newId = data.id;
+    newId = data.id.toLowerCase();
   }
 
   return {
@@ -120,7 +119,7 @@ function dropdownText(data) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
   } else {
-    newId = data.id;
+    newId = data.id.toLowerCase();
   }
 
   return {
@@ -137,7 +136,7 @@ function dropdownNumber(data) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
   } else {
-    newId = data.id;
+    newId = data.id.toLowerCase();
   }
 
   return {
@@ -154,7 +153,7 @@ function radioText(data) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
   } else {
-    newId = data.id;
+    newId = data.id.toLowerCase();
   }
 
   return {
@@ -171,7 +170,7 @@ function radioNumber(data) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
   } else {
-    newId = data.id;
+    newId = data.id.toLowerCase();
   }
 
   return {
@@ -188,7 +187,7 @@ function checkbox(data) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
   } else {
-    newId = data.id;
+    newId = data.id.toLowerCase();
   }
 
   return {
@@ -205,7 +204,7 @@ function number(data) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
   } else {
-    newId = data.id;
+    newId = data.id.toLowerCase();
   }
 
   return {
@@ -222,7 +221,7 @@ function boolean(data) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
   } else {
-    newId = data.id;
+    newId = data.id.toLowerCase();
   }
 
   return {
@@ -239,7 +238,7 @@ function date(data) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
   } else {
-    newId = data.id;
+    newId = data.id.toLowerCase();
   }
 
   return {
@@ -256,7 +255,7 @@ function files(data) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
   } else {
-    newId = data.id;
+    newId = data.id.toLowerCase();
   }
   return {
     field_name: data.name,
@@ -272,7 +271,7 @@ function link(data) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
   } else {
-    newId = data.id;
+    newId = data.id.toLowerCase();
   }
 
   return {
@@ -289,7 +288,7 @@ function reference(data) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
   } else {
-    newId = data.id;
+    newId = data.id.toLowerCase();
   }
 
   return {
@@ -305,7 +304,7 @@ function url(data) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
   } else {
-    newId = data.id;
+    newId = data.id.toLowerCase();
   }
   return {
     field_name: data.name,
@@ -321,7 +320,7 @@ function location(data) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
   } else {
-    newId = data.id;
+    newId = data.id.toLowerCase();
   }
   return {
     field_name: data.name,
@@ -337,7 +336,7 @@ function rating(data) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
   } else {
-    newId = data.id;
+    newId = data.id.toLowerCase();
   }
 
   return {
@@ -354,7 +353,7 @@ function jsonObject(data) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
   } else {
-    newId = data.id;
+    newId = data.id.toLowerCase();
   }
   return {
     field_name: data.name,
@@ -370,7 +369,7 @@ function tagEditor(data) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
   } else {
-    newId = data.id;
+    newId = data.id.toLowerCase();
   }
   return {
     field_name: data.name,

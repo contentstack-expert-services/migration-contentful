@@ -26,17 +26,7 @@ if (!fs.existsSync(contentfulFolderPath)) {
   mkdirp.sync(contentfulFolderPath);
 }
 
-function ExtractContent() {
-  if (!fs.existsSync(path.join(config.data, config.json_filename))) {
-    fs.copyFile(
-      config.contentful_filename,
-      path.join(process.cwd(), config.data, config.json_filename),
-      (err) => {
-        if (err) throw console.log(err.message);
-      }
-    );
-  }
-}
+function ExtractContent() {}
 
 ExtractContent.prototype = {
   customBar: null,
@@ -122,9 +112,8 @@ ExtractContent.prototype = {
   getAllContent: function (prefix) {
     var self = this;
     return when.promise(function (resolve, reject) {
-      var alldata = helper.readFile(
-        path.join(config.data, config.json_filename)
-      );
+      var alldata = helper.readFile(config.contentful_filename);
+
       // to fetch all the entries from the json output
       var contentTypes = alldata.contentTypes;
       var editorInterface = alldata.editorInterfaces;

@@ -17,7 +17,7 @@ const chalk = require("chalk");
 
 const _ = require("lodash");
 var helper = require("../utils/helper");
-let jsonParse = require("./jsonParser");
+let jsonRTE = require("./jsonRTE");
 
 var entryFolderPath = path.resolve(config.data, config.entryfolder);
 
@@ -270,7 +270,7 @@ ExtractEntries.prototype = {
                         } else {
                           // for the RTE values convert
                           if (lang_value.data) {
-                            entry_data[name][lang][id][newId] = jsonParse(
+                            entry_data[name][lang][id][newId] = jsonRTE(
                               lang_value,
                               lang.toLowerCase()
                             );
@@ -354,9 +354,8 @@ ExtractEntries.prototype = {
     var self = this;
     return when.promise(function (resolve, reject) {
       //for reading json file and store in alldata
-      var alldata = helper.readFile(
-        path.join(config.data, config.json_filename)
-      );
+      var alldata = helper.readFile(config.contentful_filename);
+
       // to fetch all the entries from the json output
       var entries = alldata.entries;
       if (entries) {
