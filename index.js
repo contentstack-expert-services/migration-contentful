@@ -91,19 +91,18 @@ const migFunction = () => {
 };
 
 // to check if file exist or not
-const fileCheck = (csFileName, csFilePath) => {
+const fileCheck = (csFileDetails) => {
   const allowedExtension = ".json";
-  const extension = path.extname(config.contentful_filename);
+  const extension = path.extname(csFileDetails);
   if (allowedExtension === extension) {
-    if (fs.existsSync(config.contentful_filename)) {
+    if (fs.existsSync(csFileDetails)) {
       migFunction();
     } else {
       console.log(
-        chalk.red(`Please check`),
-        chalk.yellow(`File name "${csFileName}"`),
-        chalk.red(`or`),
-        chalk.yellow(`Filepath "${csFilePath}"`),
-        chalk.red(`are valid or not and try again!`)
+        chalk.red(
+          `Please check whether the entered details are correct or not and try again->`
+        ),
+        chalk.yellow(` "${csFileDetails}"`)
       );
       contentfulMigration();
     }
@@ -118,27 +117,14 @@ const contentfulMigration = async () => {
   const question = [
     {
       type: "input",
-      name: "csFileName",
+      name: "csFileDetails",
       message: messages.promptFileName,
-      validate: (csFileName) => {
-        if (!csFileName || csFileName.trim() === "") {
+      validate: (csFileDetails) => {
+        if (!csFileDetails || csFileDetails.trim() === "") {
           console.log(chalk.red("Please insert file name!"));
           return false;
         }
-        this.name = csFileName;
-        return true;
-      },
-    },
-    {
-      type: "input",
-      name: "csFilePath",
-      message: messages.promptFilePath,
-      validate: (csFilePath) => {
-        if (!csFilePath || csFilePath.trim() === "") {
-          console.log(chalk.red("Please insert filepath!"));
-          return false;
-        }
-        this.name = csFilePath;
+        this.name = csFileDetails;
         return true;
       },
     },
@@ -147,20 +133,20 @@ const contentfulMigration = async () => {
   inquirer.prompt(question).then(async (answer) => {
     try {
       const allowedExtension = ".json";
-      if (path.extname(answer.csFileName)) {
-        const extension = path.extname(answer.csFileName);
-        if (answer.csFileName) {
+      if (path.extname(answer.csFileDetails)) {
+        const extension = path.extname(answer.csFileDetails);
+        if (answer.csFileDetails) {
           if (extension === allowedExtension) {
-            config.contentful_filename = `${answer.csFilePath}/${answer.csFileName}`;
-            fileCheck(answer.csFileName, answer.csFilePath.replace(/\/$/, ""));
+            config.contentful_filename = answer.csFileDetails;
+            fileCheck(answer.csFileDetails.replace(/\/$/, ""));
           } else {
-            config.contentful_filename = `${answer.csFilePath}/${answer.csFileName}.json`;
-            fileCheck(answer.csFileName, answer.csFilePath.replace(/\/$/, ""));
+            config.contentful_filename = `${answer.csFileDetails}.json`;
+            fileCheck(answer.csFileDetails.replace(/\/$/, ""));
           }
         }
       } else {
-        config.contentful_filename = `${answer.csFilePath}/${answer.csFileName}.json`;
-        fileCheck(answer.csFileName, answer.csFilePath.replace(/\/$/, ""));
+        config.contentful_filename = `${answer.csFileDetails}.json`;
+        fileCheck(answer.csFileDetails.replace(/\/$/, ""));
       }
     } catch (error) {
       console.log(chalk.red(error.message));

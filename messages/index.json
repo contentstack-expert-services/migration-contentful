@@ -1,21 +1,11 @@
 {
   "migration": {
-    "msgExitProcess": "\nPress Ctrl + C to exit Process!",
-    "localeCodeWebsite": "\nFor locale codes, refer to this doc -> https://www.contentstack.com/docs/developers/multilingual-content/list-of-supported-languages/"
+    "msgExitProcess": "\nPress Ctrl + C to exit Process!"
   },
 
   "contenful": {
-    "promptFileName": "Enter File Name",
+    "promptFileName": "Enter File Details (eg: /home/admin/filePath/contentful.json)",
     "promptFilePath": "Enter File Path (eg: /home/admin/filePath)",
-    "promptDescription": "For Contentful export, refer to this doc -> https://www.contentful.com/developers/docs/tutorials/cli/import-and-export/",
-    "promptModified": "Want modified Content Type?",
-    "promptModifyFileName": "Enter modified File Name",
-    "promptModifyFilePath": "Enter modified File Path (eg: /home/admin/filePath)"
-  },
-
-  "exportToLocale": {
-    "exportOrg": "Choose an organization where your source stack exists: ",
-    "exportStack": "Choose your stack: ",
-    "importSuccessMessage": "\nStack export process has been completed successfully to your local system."
+    "promptDescription": "For Contentful export, refer to this doc -> https://www.contentful.com/developers/docs/tutorials/cli/import-and-export/"
   }
 }
