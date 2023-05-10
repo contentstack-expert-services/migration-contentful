@@ -44,7 +44,7 @@ var myCustomLevels = {
 };
 
 module.exports = function (logfileName) {
-  var logsDir = __dirname + "/logs";
+  var logsDir = pathLib.join(process.cwd(), "logs");
   makeSureLogsDir(logsDir);
   var logPath = pathLib.join(logsDir, logfileName + ".log");
 

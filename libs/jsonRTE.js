@@ -3,10 +3,16 @@ const path = require("path");
 const _ = require("lodash");
 
 var entryId = helper.readFile(
-  path.join(process.cwd(), "csMigrationData/rteReferences/rteReferences.json")
+  path.join(
+    process.cwd(),
+    "contentfulMigrationData/rteReferences/rteReferences.json"
+  )
 );
 var defaultLocale = helper.readFile(
-  path.join(process.cwd(), "csMigrationData/defaultLocale/defaultLocale.json")
+  path.join(
+    process.cwd(),
+    "contentfulMigrationData/defaultLocale/defaultLocale.json"
+  )
 );
 
 const parsers = new Map();
@@ -419,7 +425,7 @@ function parseInlineReference(obj, lang) {
 
 function parseBlockAsset(obj) {
   let assetId = helper.readFile(
-    path.join(process.cwd(), "csMigrationData/assets/assets.json")
+    path.join(process.cwd(), "contentfulMigrationData/assets/assets.json")
   );
   let type = "reference";
   let uid = "asset" + Math.floor(Math.random() * 100000000000000);
@@ -583,7 +589,7 @@ function parseHeading6(obj) {
 
 function parseAssetHyperlink(obj) {
   let assetId = helper.readFile(
-    path.join(process.cwd(), "csMigrationData/assets/assets.json")
+    path.join(process.cwd(), "contentfulMigrationData/assets/assets.json")
   );
   let type = "reference";
   let uid = "reference" + Math.floor(Math.random() * 100000000000000);

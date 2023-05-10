@@ -62,14 +62,20 @@ ExtractEntries.prototype = {
         title: "Migrating Entries      ",
       });
       let assetId = helper.readFile(
-        path.join(process.cwd(), "csMigrationData/assets/assets.json")
+        path.join(process.cwd(), "contentfulMigrationData/assets/assets.json")
       );
       let entryId = helper.readFile(
-        path.join(process.cwd(), "csMigrationData/references/reference.json")
+        path.join(
+          process.cwd(),
+          "contentfulMigrationData/references/reference.json"
+        )
       );
 
       let localeId = helper.readFile(
-        path.join(process.cwd(), "csMigrationData/language/language.json")
+        path.join(
+          process.cwd(),
+          "contentfulMigrationData/language/language.json"
+        )
       );
 
       entry.map((entryData) => {
@@ -223,9 +229,9 @@ ExtractEntries.prototype = {
                             if (Array.isArray(lang_value)) {
                               // remove the values from empty curly braces from the delete entries and asset
                               const withoutEmptyBrac = myJSON
-                                .replace("{},", "")
-                                .replace(",{}", "")
-                                .replace(",{},", "");
+                                .replace(/{},/g, "")
+                                .replace(/,{}/g, "")
+                                .replace(/,{},/g, "");
                               const myObj = JSON.parse(withoutEmptyBrac);
 
                               entry_data[name][lang][id][newId] = myObj;

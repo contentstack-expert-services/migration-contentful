@@ -26,7 +26,10 @@ ExtractEntries.prototype = {
     var self = this;
     return when.promise(function (resolve, reject) {
       let localeId = helper.readFile(
-        path.join(process.cwd(), "csMigrationData/language/language.json")
+        path.join(
+          process.cwd(),
+          "contentfulMigrationData/language/language.json"
+        )
       );
       entry.map((entryData) => {
         Object.values(localeId).forEach(async (i) => {

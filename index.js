@@ -108,6 +108,7 @@ const fileCheck = (csFileDetails) => {
     }
   } else {
     console.log(chalk.red("use only .json extension file"));
+    contentfulMigration();
   }
 };
 
@@ -146,7 +147,7 @@ const contentfulMigration = async () => {
         }
       } else {
         config.contentful_filename = `${answer.csFileDetails}.json`;
-        fileCheck(answer.csFileDetails.replace(/\/$/, ""));
+        fileCheck(`${answer.csFileDetails}.json`);
       }
     } catch (error) {
       console.log(chalk.red(error.message));
