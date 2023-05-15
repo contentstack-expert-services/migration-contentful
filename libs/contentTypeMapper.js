@@ -11,7 +11,6 @@ const {
   boolean,
   date,
   files,
-  link,
   reference,
   url,
   checkbox,
@@ -21,11 +20,9 @@ const {
   tagEditor,
 } = require("./contentstackSchema");
 
-const _ = require("lodash");
 function contentTypeMapper(data) {
   const schemaArray = [];
   for (const type of data) {
-    // if (type.id !== "url" && type.id !== "title")
     switch (type.type) {
       case "RichText":
         schemaArray.push(richText(type));

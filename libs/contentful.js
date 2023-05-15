@@ -11,7 +11,6 @@ const chalk = require("chalk");
 const cliProgress = require("cli-progress");
 const colors = require("ansi-colors");
 
-const _ = require("lodash");
 /**
  * Internal module Dependencies .
  */
@@ -101,11 +100,6 @@ ExtractContent.prototype = {
         });
         self.customBar.increment();
       });
-      // console.log(
-      //   chalk.green(
-      //     `${contentTypes.length} Content-types exported successfully`
-      //   )
-      // );
       resolve();
     });
   },

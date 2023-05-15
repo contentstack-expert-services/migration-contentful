@@ -11,7 +11,6 @@ var mkdirp = require("mkdirp"),
  * Internal module Dependencies .
  */
 
-const _ = require("lodash");
 var helper = require("../utils/helper");
 
 var contentstackFolderPath = path.resolve(config.data, config.contenttypes);

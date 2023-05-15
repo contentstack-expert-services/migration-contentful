@@ -13,17 +13,15 @@ global.successLogger = require("./utils/logger")("success").log;
 global.warnLogger = require("./utils/logger")("warn").log;
 
 var moduleList = [
-  "defaultLocale",
+  "locale",
   "displayEntries",
   "rteReference",
   "reference",
-  "locale",
-  "extensions",
-  "webhooks",
-  "language",
   "contentful",
   "createEntries",
   "assets",
+  "webhooks",
+  "extensions",
   "contenttype",
   "environments",
   "entries",

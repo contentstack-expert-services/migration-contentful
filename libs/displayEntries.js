@@ -10,7 +10,6 @@ var mkdirp = require("mkdirp"),
  * Internal module Dependencies .
  */
 
-const _ = require("lodash");
 var helper = require("../utils/helper");
 
 var displayEntriesConfig = config.contentful.displayEntries.filename,

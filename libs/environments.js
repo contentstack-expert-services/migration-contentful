@@ -70,9 +70,6 @@ ExtractEnvironments.prototype = {
         path.join(environmentsFolderPath, environmentsConfig),
         JSON.stringify(environmentsJSON, null, 4)
       );
-      // console.log(
-      //   chalk.green(`${environments.length} Environments exported successfully`)
-      // );
       resolve(environments);
     });
   },

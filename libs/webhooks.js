@@ -282,9 +282,6 @@ ExtractWebhooks.prototype = {
         path.join(webhooksFolderPath, webhooksConfig),
         JSON.stringify(webhookJSON, null, 4)
       );
-      // console.log(
-      //   chalk.green(`${webhooks.length} Webhooks exported successfully`)
-      // );
       resolve(webhooks);
     });
   },

@@ -10,7 +10,6 @@ var mkdirp = require("mkdirp"),
  * Internal module Dependencies .
  */
 
-const _ = require("lodash");
 var helper = require("../utils/helper");
 
 var rteReferenceConfig = config.contentful.rteReference.filename,
@@ -34,37 +33,36 @@ ExtractRteReference.prototype = {
       );
       // console.log(locales);
       var result;
-      for (const entry of entries) {
-        result = entries.reduce(
-          (
-            entry_data,
-            {
-              sys: {
-                id,
-                contentType: {
-                  sys: { id: name },
-                },
-              },
-              fields,
-            }
-          ) => {
-            Object.entries(fields).forEach(([key, value]) => {
-              Object.entries(value).forEach(([lang, lang_value]) => {
-                entry_data[lang.toLowerCase()] ??= {};
-                entry_data[lang.toLowerCase()][id] ??= {
-                  uid: id,
-                  _content_type_uid: name
-                    .replace(/([A-Z])/g, "_$1")
-                    .toLowerCase(),
-                };
-              });
-            });
 
-            return entry_data;
-          },
-          {}
-        );
-      }
+      result = entries.reduce(
+        (
+          entry_data,
+          {
+            sys: {
+              id,
+              contentType: {
+                sys: { id: name },
+              },
+            },
+            fields,
+          }
+        ) => {
+          Object.entries(fields).forEach(([key, value]) => {
+            Object.entries(value).forEach(([lang, lang_value]) => {
+              entry_data[lang.toLowerCase()] ??= {};
+              entry_data[lang.toLowerCase()][id] ??= {
+                uid: id,
+                _content_type_uid: name
+                  .replace(/([A-Z])/g, "_$1")
+                  .toLowerCase(),
+              };
+            });
+          });
+
+          return entry_data;
+        },
+        {}
+      );
 
       helper.writeFile(
         path.join(referneceFolderPath, rteReferenceConfig),

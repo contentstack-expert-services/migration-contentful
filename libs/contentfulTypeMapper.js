@@ -11,7 +11,6 @@ const {
   boolean,
   date,
   files,
-  link,
   reference,
   url,
   checkbox,
@@ -21,7 +20,6 @@ const {
   tagEditor,
 } = require("./contentfulSchema");
 
-const _ = require("lodash");
 var idArray = [
   "uid",
   "api_key",

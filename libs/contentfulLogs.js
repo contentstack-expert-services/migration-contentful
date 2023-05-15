@@ -5,8 +5,7 @@
 var mkdirp = require("mkdirp"),
   path = require("path"),
   fs = require("fs"),
-  when = require("when"),
-  _ = require("lodash");
+  when = require("when");
 /**
  * Internal module Dependencies .
  */
