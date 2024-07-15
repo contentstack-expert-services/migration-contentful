@@ -1,77 +1,51 @@
-var helper = require("../utils/helper.js");
-const path = require("path");
-const _ = require("lodash");
+var helper = require('../utils/helper.js');
+var path = require('path');
+const _ = require('lodash');
 
-var entryId = helper.readFile(
-  path.join(
-    process.cwd(),
-    "contentfulMigrationData/rteReferences/rteReferences.json"
-  )
-);
-var defaultLocale = helper.readFile(
-  path.join(
-    process.cwd(),
-    "contentfulMigrationData/defaultLocale/defaultLocale.json"
-  )
-);
-
-const parsers = new Map();
-
-// once all the parsers are implemented don't need this check
-parsers._get = parsers.get;
-
-parsers.get = function (key) {
-  if (this.has(key)) {
-    return this._get(key);
-  }
-  return () =>
-    console.warn(`Parser not implemented for: ${JSON.stringify(key)}`);
-};
-
-// map all the parsers
-// keys should be exactly same as keys in input json
-parsers.set("document", parseDocument);
-parsers.set("paragraph", parseParagraph);
-parsers.set("text", parseText);
-parsers.set("hr", parseHR);
-parsers.set("list-item", parseLI);
-parsers.set("unordered-list", parseUL);
-parsers.set("ordered-list", parseOL);
-parsers.set("embedded-entry-block", parseBlockReference);
-parsers.set("embedded-entry-inline", parseInlineReference);
-parsers.set("embedded-asset-block", parseBlockAsset);
-parsers.set("blockquote", parseBlockquote);
-parsers.set("heading-1", parseHeading1);
-parsers.set("heading-2", parseHeading2);
-parsers.set("heading-3", parseHeading3);
-parsers.set("heading-4", parseHeading4);
-parsers.set("heading-5", parseHeading5);
-parsers.set("heading-6", parseHeading6);
-parsers.set("entry-hyperlink", parseEntryHyperlink);
-parsers.set("asset-hyperlink", parseAssetHyperlink);
-parsers.set("hyperlink", parseHyperlink);
-parsers.set("table", parseTable);
-parsers.set("table-row", parseTableRow);
-parsers.set("head-tr", parseHeadTR);
-parsers.set("table-header-cell", parseTableHead);
-parsers.set("tbody", parseTBody);
-parsers.set("body-tr", parseBodyTR);
-parsers.set("table-cell", parseTableBody);
+const parsers = new Map([
+  ['document', parseDocument],
+  ['paragraph', parseParagraph],
+  ['text', parseText],
+  ['hr', parseHR],
+  ['list-item', parseLI],
+  ['unordered-list', parseUL],
+  ['ordered-list', parseOL],
+  ['embedded-entry-block', parseBlockReference],
+  ['embedded-entry-inline', parseInlineReference],
+  ['embedded-asset-block', parseBlockAsset],
+  ['blockquote', parseBlockquote],
+  ['heading-1', parseHeading1],
+  ['heading-2', parseHeading2],
+  ['heading-3', parseHeading3],
+  ['heading-4', parseHeading4],
+  ['heading-5', parseHeading5],
+  ['heading-6', parseHeading6],
+  ['entry-hyperlink', parseEntryHyperlink],
+  ['asset-hyperlink', parseAssetHyperlink],
+  ['hyperlink', parseHyperlink],
+  ['table', parseTable],
+  ['table-row', parseTableRow],
+  ['head-tr', parseHeadTR],
+  ['table-header-cell', parseTableHead],
+  ['tbody', parseTBody],
+  ['body-tr', parseBodyTR],
+  ['table-cell', parseTableBody],
+]);
 
 function convert(obj, lang) {
   return parsers.get(obj.nodeType)(obj, lang);
 }
 
 function parseDocument(obj, lang) {
-  let type = "doc";
-  let uid = "doc" + Math.floor(Math.random() * 100000000000000);
+  let type = 'doc';
+  let uid = 'doc' + Math.floor(Math.random() * 100000000000000);
   let attrs = {};
   let children = [
     {
-      type: "p",
+      type: 'p',
       attrs: {},
-      uid: "p" + Math.floor(Math.random() * 100000000000000),
-      children: [{ text: "" }],
+      uid: 'p' + Math.floor(Math.random() * 100000000000000),
+      children: [{ text: '' }],
     },
   ];
   let _version = 1;
@@ -89,8 +63,8 @@ function parseDocument(obj, lang) {
 }
 
 function parseTable(obj) {
-  let type = "table";
-  let uid = "table" + Math.floor(Math.random() * 100000000000000);
+  let type = 'table';
+  let uid = 'table' + Math.floor(Math.random() * 100000000000000);
 
   // to get the rows counts from contentful json rte table
   let rowCount = obj.content.map((e) => {
@@ -116,7 +90,7 @@ function parseTable(obj) {
     children.push(parsers.get(e.nodeType)(e));
   });
 
-  children.push(parsers.get("tbody")(obj));
+  children.push(parsers.get('tbody')(obj));
   return {
     type,
     attrs,
@@ -128,7 +102,7 @@ function parseTable(obj) {
 function parseTableRow(obj) {
   var type = [];
   let attrs = {};
-  let uid = "tabletype" + Math.floor(Math.random() * 100000000000000);
+  let uid = 'tabletype' + Math.floor(Math.random() * 100000000000000);
   let children = [];
 
   let typeCheck = [];
@@ -136,9 +110,9 @@ function parseTableRow(obj) {
     typeCheck = _.union([e.nodeType], e.nodeType);
   });
 
-  if (typeCheck.join() === "table-header-cell") {
-    type.push("thead");
-    children.push(parsers.get("head-tr")(obj.content));
+  if (typeCheck.join() === 'table-header-cell') {
+    type.push('thead');
+    children.push(parsers.get('head-tr')(obj.content));
   }
 
   type = [...new Set(type)].join();
@@ -154,9 +128,9 @@ function parseTableRow(obj) {
 }
 
 function parseHeadTR(obj) {
-  let type = "tr";
+  let type = 'tr';
   let attrs = {};
-  let uid = "tr" + Math.floor(Math.random() * 100000000000000);
+  let uid = 'tr' + Math.floor(Math.random() * 100000000000000);
   let children = [];
   obj.forEach((e) => children.push(parsers.get(e.nodeType)(e)));
   return {
@@ -168,9 +142,9 @@ function parseHeadTR(obj) {
 }
 
 function parseTableHead(obj) {
-  let type = "th";
+  let type = 'th';
   let attrs = {};
-  let uid = "th" + Math.floor(Math.random() * 100000000000000);
+  let uid = 'th' + Math.floor(Math.random() * 100000000000000);
   let children = [];
   obj.content.forEach((e) => children.push(parsers.get(e.nodeType)(e)));
   return {
@@ -182,11 +156,11 @@ function parseTableHead(obj) {
 }
 
 function parseTBody(obj) {
-  let type = "tbody";
+  let type = 'tbody';
   let attrs = {};
-  let uid = "tbody" + Math.floor(Math.random() * 100000000000000);
+  let uid = 'tbody' + Math.floor(Math.random() * 100000000000000);
   let children = [];
-  obj.content.forEach((e) => children.push(parsers.get("body-tr")(e)));
+  obj.content.forEach((e) => children.push(parsers.get('body-tr')(e)));
   return {
     type,
     attrs,
@@ -196,13 +170,13 @@ function parseTBody(obj) {
 }
 
 function parseBodyTR(obj) {
-  let type = "tr";
+  let type = 'tr';
   let attrs = {};
-  let uid = "tr" + Math.floor(Math.random() * 100000000000000);
+  let uid = 'tr' + Math.floor(Math.random() * 100000000000000);
   let children = [];
   obj.content.forEach((e) => {
-    if (e.nodeType === "table-cell") {
-      children.push(parsers.get("table-cell")(e));
+    if (e.nodeType === 'table-cell') {
+      children.push(parsers.get('table-cell')(e));
     }
   });
 
@@ -216,9 +190,9 @@ function parseBodyTR(obj) {
 }
 
 function parseTableBody(obj) {
-  let type = "td";
+  let type = 'td';
   let attrs = {};
-  let uid = "td" + Math.floor(Math.random() * 100000000000000);
+  let uid = 'td' + Math.floor(Math.random() * 100000000000000);
   let children = [];
   obj.content.forEach((e) => children.push(parsers.get(e.nodeType)(e)));
   if (children.length > 0)
@@ -231,8 +205,8 @@ function parseTableBody(obj) {
 }
 
 function parseParagraph(obj, lang) {
-  let type = "p";
-  let uid = "p" + Math.floor(Math.random() * 100000000000000);
+  let type = 'p';
+  let uid = 'p' + Math.floor(Math.random() * 100000000000000);
   let attrs = {};
   let children = [];
 
@@ -251,17 +225,17 @@ function parseText(obj) {
   const result = {};
   result.text = obj.value;
   obj.marks.forEach(
-    (e) => (result[e.type.replace("code", "inlineCode")] = true)
+    (e) => (result[e.type.replace('code', 'inlineCode')] = true)
   );
 
   return result;
 }
 
 function parseHR() {
-  let type = "hr";
-  let uid = "hr" + Math.floor(Math.random() * 100000000000000);
+  let type = 'hr';
+  let uid = 'hr' + Math.floor(Math.random() * 100000000000000);
   let attrs = {};
-  let children = [{ text: "" }];
+  let children = [{ text: '' }];
   return {
     type,
     attrs,
@@ -271,11 +245,11 @@ function parseHR() {
 }
 
 function parseUL(obj) {
-  let type = "ul";
-  let uid = "ul" + Math.floor(Math.random() * 100000000000000);
+  let type = 'ul';
+  let uid = 'ul' + Math.floor(Math.random() * 100000000000000);
   let attrs = {};
   let children = [];
-  let id = "ul" + Math.floor(Math.random() * 100000000000000);
+  let id = 'ul' + Math.floor(Math.random() * 100000000000000);
 
   obj.content.forEach((e) => children.push(parsers.get(e.nodeType)(e)));
   return {
@@ -288,11 +262,11 @@ function parseUL(obj) {
 }
 
 function parseOL(obj) {
-  let type = "ol";
-  let uid = "ol" + Math.floor(Math.random() * 100000000000000);
+  let type = 'ol';
+  let uid = 'ol' + Math.floor(Math.random() * 100000000000000);
   let attrs = {};
   let children = [];
-  let id = "ul" + Math.floor(Math.random() * 100000000000000);
+  let id = 'ul' + Math.floor(Math.random() * 100000000000000);
 
   obj.content.forEach((e) => children.push(parsers.get(e.nodeType)(e)));
   return {
@@ -305,8 +279,8 @@ function parseOL(obj) {
 }
 
 function parseLI(obj) {
-  let type = "li";
-  let uid = "li" + Math.floor(Math.random() * 100000000000000);
+  let type = 'li';
+  let uid = 'li' + Math.floor(Math.random() * 100000000000000);
   let attrs = {};
   let children = [];
 
@@ -323,14 +297,25 @@ function parseLI(obj) {
 }
 
 function parseBlockReference(obj, lang) {
+  let entryId = helper.readFile(
+    path.join(
+      process.cwd(),
+      'csMigrationData',
+      'rteReferences',
+      'rteReferences.json'
+    )
+  );
+  const defaultLocale = helper.readFile(
+    path.join(process.cwd(), 'csMigrationData', 'locales', 'master-locale.json')
+  );
   let masterLocale = Object.values(defaultLocale)
     .map((localeId) => localeId.code)
     .join();
   let type, uid, children, attrs;
 
-  type = "reference";
-  uid = "reference" + Math.floor(Math.random() * 100000000000000);
-  children = [{ text: "" }];
+  type = 'reference';
+  uid = 'reference' + Math.floor(Math.random() * 100000000000000);
+  children = [{ text: '' }];
   attrs = {};
 
   if (masterLocale === lang) {
@@ -338,12 +323,12 @@ function parseBlockReference(obj, lang) {
       for (const [accessKey, accessValue] of Object.entries(arrayValue)) {
         if (accessKey === obj.data.target.sys.id && lang === arrayKey) {
           attrs = {
-            "display-type": "block",
-            type: "entry",
-            "class-name": "embedded-entry redactor-component block-entry",
-            "entry-uid": accessKey,
+            'display-type': 'block',
+            type: 'entry',
+            'class-name': 'embedded-entry redactor-component block-entry',
+            'entry-uid': accessKey,
             locale: arrayKey,
-            "content-type-uid": accessValue._content_type_uid,
+            'content-type-uid': accessValue._content_type_uid,
           };
         }
       }
@@ -353,12 +338,12 @@ function parseBlockReference(obj, lang) {
       for (const [accessKey, accessValue] of Object.entries(arrayValue)) {
         if (accessKey === obj.data.target.sys.id && lang === arrayKey) {
           attrs = {
-            "display-type": "block",
-            type: "entry",
-            "class-name": "embedded-entry redactor-component block-entry",
-            "entry-uid": accessKey,
+            'display-type': 'block',
+            type: 'entry',
+            'class-name': 'embedded-entry redactor-component block-entry',
+            'entry-uid': accessKey,
             locale: arrayKey,
-            "content-type-uid": accessValue._content_type_uid,
+            'content-type-uid': accessValue._content_type_uid,
           };
         }
       }
@@ -373,46 +358,35 @@ function parseBlockReference(obj, lang) {
 }
 
 function parseInlineReference(obj, lang) {
-  let masterLocale = Object.values(defaultLocale)
-    .map((localeId) => localeId.code)
-    .join();
-  let type, uid, children, attrs;
+  let entryId = helper.readFile(
+    path.join(
+      process.cwd(),
+      'csMigrationData',
+      'rteReferences',
+      'rteReferences.json'
+    )
+  );
 
-  type = "reference";
-  uid = "reference" + Math.floor(Math.random() * 100000000000000);
-  children = [{ text: "" }];
-  attrs = {};
+  let type = 'reference';
+  let uid = 'reference' + Math.floor(Math.random() * 100000000000000);
+  let children = [{ text: '' }];
+  let attrs = {};
 
-  if (masterLocale === lang) {
-    for (const [arrayKey, arrayValue] of Object.entries(entryId)) {
-      for (const [accessKey, accessValue] of Object.entries(arrayValue)) {
-        if (accessKey === obj.data.target.sys.id) {
-          attrs = {
-            "display-type": "block",
-            type: "entry",
-            "class-name": "embedded-entry redactor-component block-entry",
-            "entry-uid": accessKey,
-            locale: arrayKey,
-            "content-type-uid": accessValue._content_type_uid,
-          };
-        }
-      }
-    }
-  } else {
-    for (const [arrayKey, arrayValue] of Object.entries(entryId)) {
-      for (const [accessKey, accessValue] of Object.entries(arrayValue)) {
-        if (accessKey === obj.data.target.sys.id) {
-          attrs = {
-            "display-type": "block",
-            type: "entry",
-            "class-name": "embedded-entry redactor-component block-entry",
-            "entry-uid": accessKey,
-            locale: arrayKey,
-            "content-type-uid": accessValue._content_type_uid,
-          };
-        }
-      }
-    }
+  const entryFound = Object.entries(entryId).find(([arrayKey, arrayValue]) => {
+    return arrayKey === lang && arrayValue[obj.data.target.sys.id];
+  });
+
+  if (entryFound) {
+    const [arrayKey, arrayValue] = entryFound;
+    const accessValue = arrayValue[obj.data.target.sys.id];
+    attrs = {
+      'display-type': 'block',
+      type: 'entry',
+      'class-name': 'embedded-entry redactor-component block-entry',
+      'entry-uid': obj.data.target.sys.id,
+      locale: arrayKey,
+      'content-type-uid': accessValue._content_type_uid,
+    };
   }
 
   return {
@@ -425,27 +399,30 @@ function parseInlineReference(obj, lang) {
 
 function parseBlockAsset(obj) {
   let assetId = helper.readFile(
-    path.join(process.cwd(), "contentfulMigrationData/assets/assets.json")
+    path.join(process.cwd(), 'csMigrationData', 'assets', 'assets.json')
   );
-  let type = "reference";
-  let uid = "asset" + Math.floor(Math.random() * 100000000000000);
-  let children = [{ text: "" }];
+  let type = '';
+  let uid = 'asset' + Math.floor(Math.random() * 100000000000000);
+  let children = [{ text: '' }];
   let attrs = {};
 
   if (obj.data.target.sys.id in assetId) {
+    type = 'reference';
     attrs = {
-      "display-type": "download",
-      "asset-uid": obj.data.target.sys.id,
-      "content-type-uid": "sys_assets",
-      "asset-link": assetId[obj.data.target.sys.id].url,
-      "asset-name": assetId[obj.data.target.sys.id].filename,
-      "asset-type": assetId[obj.data.target.sys.id].content_type,
-      type: "asset",
-      "class-name": "embedded-asset",
+      'display-type': 'download',
+      'asset-uid': obj.data.target.sys.id,
+      'content-type-uid': 'sys_assets',
+      'asset-link': assetId[obj.data.target.sys.id].url,
+      'asset-name': assetId[obj.data.target.sys.id].filename,
+      'asset-type': assetId[obj.data.target.sys.id].content_type,
+      type: 'asset',
+      'class-name': 'embedded-asset',
       inline: false,
       width: 443,
       height: 266,
     };
+  } else {
+    type = 'p';
   }
 
   return {
@@ -457,8 +434,8 @@ function parseBlockAsset(obj) {
 }
 
 function parseBlockquote(obj) {
-  let type = "blockquote";
-  let uid = "blockquote" + Math.floor(Math.random() * 100000000000000);
+  let type = 'blockquote';
+  let uid = 'blockquote' + Math.floor(Math.random() * 100000000000000);
   let attrs = {};
   let children = [];
   obj.content.forEach((e) => children.push(parsers.get(e.nodeType)(e)));
@@ -473,8 +450,8 @@ function parseBlockquote(obj) {
 }
 
 function parseHeading1(obj) {
-  let type = "h1";
-  let uid = "h1" + Math.floor(Math.random() * 100000000000000);
+  let type = 'h1';
+  let uid = 'h1' + Math.floor(Math.random() * 100000000000000);
   let attrs = {};
   let children = [];
 
@@ -493,8 +470,8 @@ function parseHeading1(obj) {
 }
 
 function parseHeading2(obj) {
-  let type = "h2";
-  let uid = "h2" + Math.floor(Math.random() * 100000000000000);
+  let type = 'h2';
+  let uid = 'h2' + Math.floor(Math.random() * 100000000000000);
   let attrs = {};
   let children = [];
   obj.content.forEach((e) => children.push(parsers.get(e.nodeType)(e)));
@@ -512,8 +489,8 @@ function parseHeading2(obj) {
 }
 
 function parseHeading3(obj) {
-  let type = "h3";
-  let uid = "h3" + Math.floor(Math.random() * 100000000000000);
+  let type = 'h3';
+  let uid = 'h3' + Math.floor(Math.random() * 100000000000000);
   let attrs = {};
   let children = [];
   obj.content.forEach((e) => children.push(parsers.get(e.nodeType)(e)));
@@ -531,8 +508,8 @@ function parseHeading3(obj) {
 }
 
 function parseHeading4(obj) {
-  let type = "h4";
-  let uid = "h4" + Math.floor(Math.random() * 100000000000000);
+  let type = 'h4';
+  let uid = 'h4' + Math.floor(Math.random() * 100000000000000);
   let attrs = {};
   let children = [];
   obj.content.forEach((e) => children.push(parsers.get(e.nodeType)(e)));
@@ -550,8 +527,8 @@ function parseHeading4(obj) {
 }
 
 function parseHeading5(obj) {
-  let type = "h5";
-  let uid = "h5" + Math.floor(Math.random() * 100000000000000);
+  let type = 'h5';
+  let uid = 'h5' + Math.floor(Math.random() * 100000000000000);
   let attrs = {};
   let children = [];
   obj.content.forEach((e) => children.push(parsers.get(e.nodeType)(e)));
@@ -569,8 +546,8 @@ function parseHeading5(obj) {
 }
 
 function parseHeading6(obj) {
-  let type = "h6";
-  let uid = "h6" + Math.floor(Math.random() * 100000000000000);
+  let type = 'h6';
+  let uid = 'h6' + Math.floor(Math.random() * 100000000000000);
   let attrs = {};
   let children = [];
   obj.content.forEach((e) => children.push(parsers.get(e.nodeType)(e)));
@@ -589,27 +566,32 @@ function parseHeading6(obj) {
 
 function parseAssetHyperlink(obj) {
   let assetId = helper.readFile(
-    path.join(process.cwd(), "contentfulMigrationData/assets/assets.json")
+    path.join(process.cwd(), 'csMigrationData', 'assets', 'assets.json')
   );
-  let type = "reference";
-  let uid = "reference" + Math.floor(Math.random() * 100000000000000);
+  let type = '';
+  let uid = 'reference' + Math.floor(Math.random() * 100000000000000);
   let children = [];
   let attrs = {};
   if (obj.data.target.sys.id in assetId) {
+    type = 'reference';
     attrs = {
-      "display-type": "link",
-      type: "asset",
-      "class-name": "embedded-entry redactor-component undefined-entry",
-      "asset-uid": obj.data.target.sys.id,
-      "content-type-uid": "sys_assets",
-      target: "_blank",
+      'display-type': 'link',
+      type: 'asset',
+      'class-name': 'embedded-entry redactor-component undefined-entry',
+      'asset-uid': obj.data.target.sys.id,
+      'content-type-uid': 'sys_assets',
+      target: '_blank',
       href: assetId[obj.data.target.sys.id].url,
     };
+    obj.content.forEach((e) => children.push(parsers.get(e.nodeType)(e)));
+    children = children.map((c) => {
+      return c;
+    });
+  } else {
+    type = 'p';
+    children = [{ text: '' }];
   }
-  obj.content.forEach((e) => children.push(parsers.get(e.nodeType)(e)));
-  children = children.map((c) => {
-    return c;
-  });
+
   return {
     uid,
     type,
@@ -619,9 +601,18 @@ function parseAssetHyperlink(obj) {
 }
 
 function parseEntryHyperlink(obj, lang) {
+  let entryId = helper.readFile(
+    path.join(
+      process.cwd(),
+      'csMigrationData',
+      'rteReferences',
+      'rteReferences.json'
+    )
+  );
+
   let type, uid, children, attrs;
-  type = "reference";
-  uid = "reference" + Math.floor(Math.random() * 100000000000000);
+  type = 'reference';
+  uid = 'reference' + Math.floor(Math.random() * 100000000000000);
   children = [];
   attrs = {};
 
@@ -629,12 +620,12 @@ function parseEntryHyperlink(obj, lang) {
     for (const [accessKey, accessValue] of Object.entries(arrayValue)) {
       if (accessKey === obj.data.target.sys.id) {
         attrs = {
-          "display-type": "block",
-          type: "entry",
-          "class-name": "embedded-entry redactor-component block-entry",
-          "entry-uid": accessKey,
+          'display-type': 'block',
+          type: 'entry',
+          'class-name': 'embedded-entry redactor-component block-entry',
+          'entry-uid': accessKey,
           locale: arrayKey,
-          "content-type-uid": accessValue._content_type_uid,
+          'content-type-uid': accessValue._content_type_uid,
         };
       }
     }
@@ -653,12 +644,12 @@ function parseEntryHyperlink(obj, lang) {
 }
 
 function parseHyperlink(obj) {
-  let type = "a";
-  let uid = "a" + Math.floor(Math.random() * 100000000000000);
+  let type = 'a';
+  let uid = 'a' + Math.floor(Math.random() * 100000000000000);
   let children = [];
   let attrs = {
     url: obj.data.uri,
-    target: "_blank",
+    target: '_blank',
   };
   obj.content.forEach((e) => children.push(parsers.get(e.nodeType)(e)));
   children = children.map((c) => {

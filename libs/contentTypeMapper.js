@@ -12,147 +12,151 @@ const {
   date,
   files,
   reference,
-  url,
   checkbox,
   location,
   rating,
   jsonObject,
   tagEditor,
-} = require("./contentstackSchema");
+} = require('./contentstackSchema');
 
 function contentTypeMapper(data) {
   const schemaArray = [];
   for (const type of data) {
+    // if (type.id !== "url" && type.id !== "title")
     switch (type.type) {
-      case "RichText":
+      case 'RichText':
         schemaArray.push(richText(type));
         break;
-      case "Symbol":
+      case 'Symbol':
         switch (type.widgetId) {
-          case "singleLine":
+          case 'singleLine':
             schemaArray.push(singleLine(type));
             break;
-          case "urlEditor":
-            schemaArray.push(url(type));
+          case 'urlEditor':
+            schemaArray.push(singleLine(type));
             break;
-          case "dropdown":
+          case 'dropdown':
             schemaArray.push(dropdownText(type));
             break;
-          case "radio":
+          case 'radio':
             schemaArray.push(radioText(type));
             break;
-          case "slugEditor":
-            schemaArray.push(url(type));
-          default:
-            break;
-        }
-        break;
-      case "Text":
-        switch (type.widgetId) {
-          case "singleLine":
+          case 'slugEditor':
             schemaArray.push(singleLine(type));
             break;
-          case "multipleLine":
+          default:
+            break;
+        }
+        break;
+      case 'Text':
+        switch (type.widgetId) {
+          case 'singleLine':
+            schemaArray.push(singleLine(type));
+            break;
+          case 'multipleLine':
             schemaArray.push(multiLine(type));
             break;
-          case "markdown":
+          case 'markdown':
             schemaArray.push(markdown(type));
             break;
-          case "dropdown":
+          case 'dropdown':
             schemaArray.push(dropdown(type));
             break;
-          case "radio":
+          case 'radio':
             schemaArray.push(radioText(type));
             break;
           default:
             break;
         }
         break;
-      case "Integer":
+      case 'Integer':
         switch (type.widgetId) {
-          case "numberEditor":
+          case 'numberEditor':
             schemaArray.push(number(type));
             break;
-          case "dropdown":
+          case 'dropdown':
             schemaArray.push(dropdownNumber(type));
             break;
-          case "radio":
+          case 'radio':
             schemaArray.push(radioNumber(type));
             break;
-          case "rating":
+          case 'rating':
             schemaArray.push(rating(type));
             break;
           default:
             break;
         }
         break;
-      case "Number":
+      case 'Number':
         switch (type.widgetId) {
-          case "numberEditor":
+          case 'numberEditor':
             schemaArray.push(number(type));
             break;
-          case "dropdown":
+          case 'dropdown':
             schemaArray.push(dropdownNumber(type));
             break;
-          case "radio":
+          case 'radio':
             schemaArray.push(radioNumber(type));
             break;
-          case "rating":
+          case 'rating':
             schemaArray.push(rating(type));
             break;
           default:
             break;
         }
         break;
-      case "Date":
+      case 'Date':
         schemaArray.push(date(type));
         break;
-      case "Array":
+      case 'Array':
         switch (type.widgetId) {
-          case "assetLinksEditor":
+          case 'assetLinksEditor':
             schemaArray.push(files(type));
             break;
-          case "assetGalleryEditor":
+          case 'assetGalleryEditor':
             schemaArray.push(files(type));
             break;
-          case "entryLinksEditor":
+          case 'entryLinksEditor':
             schemaArray.push(reference(type));
             break;
-          case "checkbox":
+          case 'entryCardsEditor':
+            schemaArray.push(reference(type));
+            break;
+          case 'checkbox':
             schemaArray.push(checkbox(type));
             break;
-          case "tagEditor":
+          case 'tagEditor':
             schemaArray.push(tagEditor(type));
             break;
           default:
             break;
         }
         break;
-      case "Link":
+      case 'Link':
         switch (type.widgetId) {
-          case "assetLinkEditor":
+          case 'assetLinkEditor':
             schemaArray.push(files(type));
             break;
-          case "assetGalleryEditor":
+          case 'assetGalleryEditor':
             schemaArray.push(files(type));
             break;
-          case "entryLinkEditor":
+          case 'entryLinkEditor':
             schemaArray.push(reference(type));
             break;
-          case "entryCardEditor":
+          case 'entryCardEditor':
             schemaArray.push(reference(type));
             break;
           default:
             break;
         }
         break;
-      case "Boolean":
+      case 'Boolean':
         schemaArray.push(boolean(type));
         break;
-      case "Object":
+      case 'Object':
         schemaArray.push(jsonObject(type));
         break;
-      case "Location":
+      case 'Location':
         schemaArray.push(location(type));
         break;
       default:

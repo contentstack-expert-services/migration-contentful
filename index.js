@@ -1,46 +1,51 @@
-var path = require("path"),
-  chalk = require("chalk"),
-  inquirer = require("inquirer"),
-  fs = require("fs"),
-  sequence = require("when/sequence");
+var path = require('path'),
+  chalk = require('chalk'),
+  inquirer = require('inquirer'),
+  fs = require('fs'),
+  sequence = require('when/sequence');
 
-const Messages = require("./utils/message");
-const messages = new Messages("contenful").msgs;
+const Messages = require('./utils/message');
+const messages = new Messages('contenful').msgs;
 
-config = require("./config");
-global.errorLogger = require("./utils/logger")("error").error;
-global.successLogger = require("./utils/logger")("success").log;
-global.warnLogger = require("./utils/logger")("warn").log;
+const cliUpdate = require('./utils/cli_convert');
+
+config = require('./config');
+global.errorLogger = require('./utils/logger')('error').error;
+global.successLogger = require('./utils/logger')('success').log;
+global.warnLogger = require('./utils/logger')('warn').log;
 
 var moduleList = [
-  "locale",
-  "displayEntries",
-  "rteReference",
-  "reference",
-  "contentful",
-  "createEntries",
-  "assets",
-  "webhooks",
-  "extensions",
-  "contenttype",
-  "environments",
-  "entries",
-  "contentfulLogs",
+  'locale',
+  'displayEntries',
+  'rteReference',
+  'reference',
+  'extensions',
+  'language',
+  'webhooks',
+  'contentful',
+  'createEntries',
+  'environments',
+  'folders',
+  'assets',
+  'globalfields',
+  'contenttype',
+  'entries',
+  'contentfulLogs',
 ];
 var _export = [];
 
 const migFunction = () => {
   inquirer
     .prompt({
-      type: "input",
-      name: "csPrefix",
+      type: 'input',
+      name: 'csPrefix',
       message: messages.promptPrefix,
-      default: "cs",
+      default: 'cs',
       validate: (csPrefix) => {
         let format = /[!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?]+/;
         if (format.test(csPrefix)) {
           console.log(
-            chalk.red(`\nSpecial Charatcers are not allowed except "_"`)
+            chalk.red(`\nSpecial charatcers are not allowed except "_"`)
           );
           return false;
         }
@@ -53,36 +58,41 @@ const migFunction = () => {
         global.filePath = undefined;
         for (var i = 0, total = moduleList.length; i < total; i++) {
           //to export all the modules we want to import
-          var ModuleExport = require("./libs/" + moduleList[i] + ".js");
+          var ModuleExport = require('./libs/' + moduleList[i] + '.js');
           var moduleExport = new ModuleExport();
           _export.push(
             (function (moduleExport) {
               return function () {
                 return moduleExport.start(
-                  answer.csPrefix.replace(/[^a-zA-Z0-9]+/g, "_")
+                  answer.csPrefix.replace(/[^a-zA-Z0-9]+/g, '_')
                 );
               };
             })(moduleExport)
           );
         }
       } catch (err) {
-        console.log("hi check", err);
-        console.log("error message", err.message);
+        console.log('error message', err.message);
       }
       var taskResults = sequence(_export);
       taskResults
         .then(async function (results) {
           console.log(
-            chalk.green("\nContenful Data exporting has been completed")
+            chalk.green('\nContenful Data exporting has been completed')
           );
 
-          console.log(
-            `See Logs folder for changed UIDs here`,
-            chalk.yellow(`${path.join(process.cwd(), "logs")}\n`)
-          );
+          setTimeout(async () => {
+            // to convert contentful data to support cli
+            await cliUpdate();
+            console.log(
+              `See Logs folder for changed UIDs here`,
+              chalk.yellow(`${path.join(process.cwd(), 'logs')}\n`)
+            );
+            // Terminate the process after the timeout
+            process.exit(0);
+          }, 10000);
         })
         .catch(function (error) {
-          console.log("thrown inside catch block", error);
+          console.log('thrown inside catch block', error);
           errorLogger(error);
         });
     });
@@ -90,7 +100,7 @@ const migFunction = () => {
 
 // to check if file exist or not
 const fileCheck = (csFileDetails) => {
-  const allowedExtension = ".json";
+  const allowedExtension = '.json';
   const extension = path.extname(csFileDetails);
   if (allowedExtension === extension) {
     if (fs.existsSync(csFileDetails)) {
@@ -105,22 +115,22 @@ const fileCheck = (csFileDetails) => {
       contentfulMigration();
     }
   } else {
-    console.log(chalk.red("use only .json extension file"));
+    console.log(chalk.red('use only .json extension file'));
     contentfulMigration();
   }
 };
 
 const contentfulMigration = async () => {
-  console.log(chalk.hex("#6C5CE7")(messages.promptDescription));
+  console.log(chalk.hex('#6C5CE7')(messages.promptDescription));
 
   const question = [
     {
-      type: "input",
-      name: "csFileDetails",
+      type: 'input',
+      name: 'csFileDetails',
       message: messages.promptFileName,
       validate: (csFileDetails) => {
-        if (!csFileDetails || csFileDetails.trim() === "") {
-          console.log(chalk.red("Please insert file name!"));
+        if (!csFileDetails || csFileDetails.trim() === '') {
+          console.log(chalk.red('Please insert file name!'));
           return false;
         }
         this.name = csFileDetails;
@@ -131,16 +141,16 @@ const contentfulMigration = async () => {
 
   inquirer.prompt(question).then(async (answer) => {
     try {
-      const allowedExtension = ".json";
+      const allowedExtension = '.json';
       if (path.extname(answer.csFileDetails)) {
         const extension = path.extname(answer.csFileDetails);
         if (answer.csFileDetails) {
           if (extension === allowedExtension) {
             config.contentful_filename = answer.csFileDetails;
-            fileCheck(answer.csFileDetails.replace(/\/$/, ""));
+            fileCheck(answer.csFileDetails.replace(/\/$/, ''));
           } else {
             config.contentful_filename = `${answer.csFileDetails}.json`;
-            fileCheck(answer.csFileDetails.replace(/\/$/, ""));
+            fileCheck(answer.csFileDetails.replace(/\/$/, ''));
           }
         }
       } else {

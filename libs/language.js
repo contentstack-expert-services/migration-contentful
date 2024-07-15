@@ -5,33 +5,28 @@
 var mkdirp = require('mkdirp'),
   path = require('path'),
   fs = require('fs'),
-  when = require('when'),
-  chalk = require('chalk');
+  when = require('when');
+
+const chalk = require('chalk');
+const cliProgress = require('cli-progress');
+const colors = require('ansi-colors');
+
 /**
  * Internal module Dependencies .
  */
 
-const cliProgress = require('cli-progress');
-const colors = require('ansi-colors');
-
 var helper = require('../utils/helper');
 
-var localeFolderPath = path.resolve(
+var languageConfig = config.contentful.language.filename,
+  languageFolderPath = path.resolve(
     config.data,
-    config.modules.locales.dirName
-  ),
-  defaultLocaleConfig = config.modules.locales.masterLocale,
-  languageConfig = config.modules.locales.cfLanguage,
-  localeConfig = config.modules.locales.fileName;
+    config.contentful.language.dirname
+  );
 
-if (!fs.existsSync(localeFolderPath)) {
-  mkdirp.sync(localeFolderPath);
-  helper.writeFile(path.join(localeFolderPath, defaultLocaleConfig));
-  helper.writeFile(path.join(localeFolderPath, languageConfig));
-  helper.writeFile(path.join(localeFolderPath, localeConfig));
+if (!fs.existsSync(languageFolderPath)) {
+  mkdirp.sync(languageFolderPath);
+  helper.writeFile(path.join(languageFolderPath, languageConfig));
 }
-
-const localeList = require('../utils/localeList.json');
 
 function ExtractLocale() {}
 
@@ -59,57 +54,23 @@ ExtractLocale.prototype = {
       self.customBar.start(locale.length, 0, {
         title: 'Migrating Locales      ',
       });
-      // to save default locale of Contentful file
-      var defaultLocaleJSON = helper.readFile(
-        path.join(localeFolderPath, defaultLocaleConfig)
-      );
-
-      // to save other locales of Contentful file
       var localeJSON = helper.readFile(
-        path.join(localeFolderPath, localeConfig)
+        path.join(languageFolderPath, languageConfig)
       );
-
-      // to save all locale files which are available in Contentful file
-      var languageJSON = helper.readFile(
-        path.join(localeFolderPath, languageConfig)
-      );
-
       locale.map((localeData) => {
         var title = localeData.sys.id;
-        var newLocale = {
+        localeJSON[title] = {
           code: `${localeData.code.toLowerCase()}`,
-          name:
-            localeList[localeData.code.toLowerCase()] ||
-            'English - United States',
+          name: `${localeData.name}`,
           fallback_locale: '',
           uid: `${title}`,
         };
-
-        if (localeData.default === true) {
-          defaultLocaleJSON[title] = newLocale;
-        } else {
-          newLocale.name = `${localeData.name}`;
-          localeJSON[title] = newLocale;
-        }
-
-        languageJSON[title] = newLocale;
-
         self.customBar.increment();
       });
-
       fs.writeFileSync(
-        path.join(localeFolderPath, defaultLocaleConfig),
-        JSON.stringify(defaultLocaleJSON, null, 4)
-      );
-      fs.writeFileSync(
-        path.join(localeFolderPath, localeConfig),
+        path.join(languageFolderPath, languageConfig),
         JSON.stringify(localeJSON, null, 4)
       );
-      fs.writeFileSync(
-        path.join(localeFolderPath, languageConfig),
-        JSON.stringify(languageJSON, null, 4)
-      );
-
       resolve(locale);
     });
   },
@@ -119,7 +80,6 @@ ExtractLocale.prototype = {
     return when.promise(function (resolve, reject) {
       //for reading json file and store in alldata
       var alldata = helper.readFile(config.contentful_filename);
-
       // to fetch all the locale from the json output
       var locales = alldata.locales;
       if (locales) {

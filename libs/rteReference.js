@@ -1,16 +1,16 @@
-"use strict";
+'use strict';
 /**
  * External module Dependencies.
  */
-var mkdirp = require("mkdirp"),
-  path = require("path"),
-  fs = require("fs"),
-  when = require("when");
+var mkdirp = require('mkdirp'),
+  path = require('path'),
+  fs = require('fs'),
+  when = require('when');
 /**
  * Internal module Dependencies .
  */
 
-var helper = require("../utils/helper");
+var helper = require('../utils/helper');
 
 var rteReferenceConfig = config.contentful.rteReference.filename,
   referneceFolderPath = path.resolve(
@@ -26,15 +26,9 @@ if (!fs.existsSync(referneceFolderPath)) {
 function ExtractRteReference() {}
 
 ExtractRteReference.prototype = {
-  saveRteReference: function (entries, locales) {
+  saveRteReference: function (entries) {
     return when.promise(function (resolve, reject) {
-      var rteReferenceJSON = helper.readFile(
-        path.join(referneceFolderPath, rteReferenceConfig)
-      );
-      // console.log(locales);
-      var result;
-
-      result = entries.reduce(
+      var result = entries.reduce(
         (
           entry_data,
           {
@@ -53,7 +47,7 @@ ExtractRteReference.prototype = {
               entry_data[lang.toLowerCase()][id] ??= {
                 uid: id,
                 _content_type_uid: name
-                  .replace(/([A-Z])/g, "_$1")
+                  .replace(/([A-Z])/g, '_$1')
                   .toLowerCase(),
               };
             });
@@ -76,23 +70,21 @@ ExtractRteReference.prototype = {
     return when.promise(function (resolve, reject) {
       //for reading json file and store in alldata
       var alldata = helper.readFile(config.contentful_filename);
-
       // to fetch all the entries from the json output
       var entries = alldata.entries;
-      var locales = alldata.locales;
       if (entries) {
         if (entries.length > 0) {
           if (!filePath) {
             //run to save and excrete the entries
-            self.saveRteReference(entries, locales);
+            self.saveRteReference(entries);
             resolve();
           }
         } else {
-          errorLogger("no entries found");
+          errorLogger('no entries found');
           resolve();
         }
       } else {
-        errorLogger("no entries found");
+        errorLogger('no entries found');
         resolve();
       }
     });

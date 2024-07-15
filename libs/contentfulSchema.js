@@ -1,57 +1,13 @@
-var idArray = [
-  "uid",
-  "api_key",
-  "created_at",
-  "deleted_at",
-  "updated_at",
-  "tags_array",
-  "klass_id",
-  "applikation_id",
-  "id",
-  "_id",
-  "ACL",
-  "SYS_ACL",
-  "DEFAULT_ACL",
-  "app_user_object_uid",
-  "built_io_upload",
-  "__loc",
-  "tags",
-  "_owner",
-  "_version",
-  "toJSON",
-  "save",
-  "update",
-  "domain",
-  "share_account",
-  "shard_app",
-  "shard_random",
-  "hook",
-  "__indexes",
-  "__meta",
-  "created_by",
-  "updated_by",
-  "inbuilt_class",
-  "tenant_id",
-  "isSystemUser",
-  "isApplicationUser",
-  "isNew",
-  "_shouldLean",
-  "_shouldFilter",
-  "options",
-  "_version",
-  "__v",
-  "locale",
-  "publish_details",
-];
+var idArray = require('../utils/restrcitedKeyWords.json');
 
 // for Singleline
 function singleLine(data) {
   let replaceid, newId;
-  if (idArray.includes(data.id)) {
+  if (idArray.includes(data?.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
-    newId = data.id.toLowerCase();
+    newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
 
   return {
@@ -66,9 +22,9 @@ function multiLine(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
-    newId = data.id.toLowerCase();
+    newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
 
   return {
@@ -83,9 +39,9 @@ function richText(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
-    newId = data.id.toLowerCase();
+    newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
 
   return {
@@ -100,9 +56,9 @@ function markdown(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
-    newId = data.id.toLowerCase();
+    newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
 
   return {
@@ -117,9 +73,9 @@ function dropdownText(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
-    newId = data.id.toLowerCase();
+    newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
 
   return {
@@ -134,9 +90,9 @@ function dropdownNumber(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
-    newId = data.id.toLowerCase();
+    newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
 
   return {
@@ -151,9 +107,9 @@ function radioText(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
-    newId = data.id.toLowerCase();
+    newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
 
   return {
@@ -168,9 +124,9 @@ function radioNumber(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
-    newId = data.id.toLowerCase();
+    newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
 
   return {
@@ -185,9 +141,9 @@ function checkbox(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
-    newId = data.id.toLowerCase();
+    newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
 
   return {
@@ -202,9 +158,9 @@ function number(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
-    newId = data.id.toLowerCase();
+    newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
 
   return {
@@ -219,9 +175,9 @@ function boolean(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
-    newId = data.id.toLowerCase();
+    newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
 
   return {
@@ -236,9 +192,9 @@ function date(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
-    newId = data.id.toLowerCase();
+    newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
 
   return {
@@ -253,9 +209,9 @@ function files(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
-    newId = data.id.toLowerCase();
+    newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
   return {
     field_name: data.name,
@@ -269,9 +225,9 @@ function link(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
-    newId = data.id.toLowerCase();
+    newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
 
   return {
@@ -286,9 +242,9 @@ function reference(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
-    newId = data.id.toLowerCase();
+    newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
 
   return {
@@ -302,9 +258,9 @@ function url(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
-    newId = data.id.toLowerCase();
+    newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
   return {
     field_name: data.name,
@@ -318,9 +274,9 @@ function location(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
-    newId = data.id.toLowerCase();
+    newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
   return {
     field_name: data.name,
@@ -334,9 +290,9 @@ function rating(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
-    newId = data.id.toLowerCase();
+    newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
 
   return {
@@ -351,9 +307,9 @@ function jsonObject(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
-    newId = data.id.toLowerCase();
+    newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
   return {
     field_name: data.name,
@@ -367,9 +323,9 @@ function tagEditor(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
-    newId = data.id.toLowerCase();
+    newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
   return {
     field_name: data.name,

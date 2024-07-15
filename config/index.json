@@ -6,7 +6,9 @@
   "modules": {
     "locales": {
       "dirName": "locales",
-      "fileName": "locales.json"
+      "fileName": "locales.json",
+      "masterLocale": "master-locale.json",
+      "cfLanguage": "language.json"
     },
     "webhooks": {
       "dirName": "webhooks",

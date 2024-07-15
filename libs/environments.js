@@ -1,21 +1,20 @@
-"use strict";
+'use strict';
 /**
  * External module Dependencies.
  */
-var mkdirp = require("mkdirp"),
-  path = require("path"),
-  fs = require("fs"),
-  when = require("when");
+var mkdirp = require('mkdirp'),
+  path = require('path'),
+  fs = require('fs'),
+  when = require('when');
 
-const chalk = require("chalk");
-const cliProgress = require("cli-progress");
-const colors = require("ansi-colors");
+const chalk = require('chalk');
+const cliProgress = require('cli-progress');
+const colors = require('ansi-colors');
 /**
  * Internal module Dependencies .
  */
 
-const _ = require("lodash");
-var helper = require("../utils/helper");
+var helper = require('../utils/helper');
 
 var environmentsConfig = config.modules.environments.fileName,
   environmentsFolderPath = path.resolve(
@@ -35,11 +34,11 @@ ExtractEnvironments.prototype = {
   initalizeLoader: function () {
     this.customBar = new cliProgress.SingleBar({
       format:
-        "{title}|" +
-        colors.cyan("{bar}") +
-        "|  {percentage}%  || {value}/{total} completed",
-      barCompleteChar: "\u2588",
-      barIncompleteChar: "\u2591",
+        '{title}|' +
+        colors.cyan('{bar}') +
+        '|  {percentage}%  || {value}/{total} completed',
+      barCompleteChar: '\u2588',
+      barIncompleteChar: '\u2591',
       hideCursor: true,
     });
   },
@@ -52,24 +51,47 @@ ExtractEnvironments.prototype = {
     var self = this;
     return when.promise(function (resolve, reject) {
       self.customBar.start(environments.length, 0, {
-        title: "Migrating Environment  ",
+        title: 'Migrating Environment  ',
       });
       var environmentsJSON = helper.readFile(
         path.join(environmentsFolderPath, environmentsConfig)
       );
+
+      const defaultLocale = helper.readFile(
+        path.join(process.cwd(), config.data, 'locales', 'master-locale.json')
+      );
+
+      let masterLocale = Object.values(defaultLocale)
+        .map((localeId) => localeId.code)
+        .join();
       environments.map((env) => {
-        var title = env.sys.createdBy.sys.id;
-        environmentsJSON[title] = {
-          urlPath: `/environments/${env.sys.environment.sys.id}`,
-          urls: [{ url: "", locale: "en-us" }],
-          name: env.sys.environment.sys.id,
-        };
+        var title = env?.sys?.createdBy?.sys?.id;
+        var name = env?.sys?.environment?.sys?.id || 'master';
+
+        // Check if the name is unique
+        var isUnique = !Object.values(environmentsJSON).some(
+          (env) => env.name === name
+        );
+
+        if (isUnique) {
+          environmentsJSON[title] = {
+            uid: title,
+            urlPath: `/environments/${
+              env?.sys?.environment?.sys?.id || 'master'
+            }`,
+            urls: [{ url: '', locale: masterLocale }],
+            name: name,
+          };
+        }
+
         self.customBar.increment();
       });
-      helper.writeFile(
+
+      fs.writeFileSync(
         path.join(environmentsFolderPath, environmentsConfig),
         JSON.stringify(environmentsJSON, null, 4)
       );
+
       resolve(environments);
     });
   },

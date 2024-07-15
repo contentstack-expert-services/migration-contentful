@@ -1,79 +1,64 @@
-var idArray = [
-  "uid",
-  "api_key",
-  "created_at",
-  "deleted_at",
-  "updated_at",
-  "tags_array",
-  "klass_id",
-  "applikation_id",
-  "id",
-  "_id",
-  "ACL",
-  "SYS_ACL",
-  "DEFAULT_ACL",
-  "app_user_object_uid",
-  "built_io_upload",
-  "__loc",
-  "tags",
-  "_owner",
-  "_version",
-  "toJSON",
-  "save",
-  "update",
-  "domain",
-  "share_account",
-  "shard_app",
-  "shard_random",
-  "hook",
-  "__indexes",
-  "__meta",
-  "created_by",
-  "updated_by",
-  "inbuilt_class",
-  "tenant_id",
-  "isSystemUser",
-  "isApplicationUser",
-  "isNew",
-  "_shouldLean",
-  "_shouldFilter",
-  "options",
-  "_version",
-  "__v",
-  "locale",
-  "publish_details",
-];
+var idArray = require('../utils/restrcitedKeyWords.json');
 
-const _ = require("lodash");
 // for Singleline
 function singleLine(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
   let defaultText;
   if (data.defaultValue) {
     defaultText = Object.values(data.defaultValue)[0];
-  } else {
-    defaultText = "";
   }
+
+  let regrexValue;
+  let uniqueValue;
+  let validationErrorMessage;
+  for (const validationValue of data.validations) {
+    regrexValue = validationValue?.regexp?.pattern;
+    validationErrorMessage = validationValue?.message;
+    uniqueValue = validationValue?.unique;
+  }
+
+  let description = data?.settings?.helpText || data?.contentDescription || '';
+  if (description.length > 255) {
+    description = description.slice(0, 255);
+  }
+
   return {
-    data_type: "text",
+    data_type: 'text',
     display_name: data.name,
-    uid: newId.toLowerCase(),
+    uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
     field_metadata: {
-      description: "",
-      default_value: defaultText,
+      description: description || '',
+      default_value: defaultText ?? '',
+      _default:
+        newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`) ===
+          'title' ||
+        newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`) ===
+          'url'
+          ? true
+          : undefined,
     },
-    format: "",
-    error_messages: { format: "" },
-    mandatory: false,
+    format: regrexValue ?? '',
+    error_messages: { format: validationErrorMessage ?? '' },
+    mandatory:
+      newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`) ===
+        'title' ||
+      newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`) === 'url'
+        ? true
+        : data?.required ?? false,
     multiple: false,
-    non_localizable: false,
-    unique: false,
+    non_localizable: !(data?.localized === true) || false,
+    unique:
+      newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`) ===
+        'title' ||
+      newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`) === 'url'
+        ? true
+        : uniqueValue ?? false,
   };
 }
 
@@ -82,31 +67,44 @@ function multiLine(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
   let defaultText;
   if (data.defaultValue) {
     defaultText = Object.values(data.defaultValue)[0];
-  } else {
-    defaultText = "";
   }
+
+  let regrexValue;
+  let uniqueValue;
+  let validationErrorMessage;
+  for (const validationValue of data.validations) {
+    regrexValue = validationValue?.regexp?.pattern;
+    validationErrorMessage = validationValue?.message;
+    uniqueValue = validationValue?.unique;
+  }
+
+  let description = data?.settings?.helpText || data?.contentDescription || '';
+  if (description.length > 255) {
+    description = description.slice(0, 255);
+  }
+
   return {
-    data_type: "text",
+    data_type: 'text',
     display_name: data.name,
-    uid: newId.toLowerCase(),
+    uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
     field_metadata: {
-      description: "",
-      default_value: defaultText,
+      description: description,
+      default_value: defaultText ?? '',
       multiline: true,
     },
-    format: "",
-    error_messages: { format: "" },
-    mandatory: false,
+    format: regrexValue ?? '',
+    error_messages: { format: validationErrorMessage ?? '' },
+    mandatory: data?.required ?? false,
     multiple: false,
-    non_localizable: false,
-    unique: false,
+    non_localizable: !(data?.localized === true) || false,
+    unique: uniqueValue ?? false,
   };
 }
 
@@ -116,7 +114,7 @@ function richText(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
@@ -130,35 +128,43 @@ function richText(data) {
       referenceFields = rFields.slice(0, 9);
     }
   }
-  rFields.push("sys_assets");
+  referenceFields.push('sys_assets');
 
   let defaultText;
   if (data.defaultValue) {
     defaultText = Object.values(data.defaultValue)[0];
-  } else {
-    defaultText = "";
   }
+
+  let regrexValue;
+  let uniqueValue;
+  let validationErrorMessage;
+  for (const validationValue of data.validations) {
+    regrexValue = validationValue?.regexp?.pattern;
+    validationErrorMessage = validationValue?.message;
+    uniqueValue = validationValue?.unique;
+  }
+
   return {
-    data_type: "json",
+    data_type: 'json',
     display_name: data.name,
-    uid: newId.toLowerCase(),
+    uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
     field_metadata: {
       allow_json_rte: true,
       embed_entry: true,
-      rich_text_type: "advanced",
+      rich_text_type: 'advanced',
       multiline: true,
-      description: defaultText,
-      default_value: "",
+      description: defaultText ?? '',
+      default_value: '',
       options: [],
       ref_multiple_content_types: true,
     },
-    format: "",
-    error_messages: { format: "" },
+    format: regrexValue ?? '',
+    error_messages: { format: validationErrorMessage ?? '' },
     reference_to: referenceFields,
     multiple: false,
-    non_localizable: false,
-    unique: false,
-    mandatory: false,
+    non_localizable: !(data?.localized === true) || false,
+    unique: uniqueValue ?? false,
+    mandatory: data?.required ?? false,
   };
 }
 
@@ -168,29 +174,44 @@ function markdown(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
   if (data.defaultValue) {
     defaultText = Object.values(data.defaultValue)[0];
-  } else {
-    defaultText = "";
   }
+
+  let regrexValue;
+  let uniqueValue;
+  let validationErrorMessage;
+  for (const validationValue of data.validations) {
+    regrexValue = validationValue?.regexp?.pattern;
+    validationErrorMessage = validationValue?.message;
+    uniqueValue = validationValue?.unique;
+  }
+
+  let description = data?.settings?.helpText || data?.contentDescription || '';
+  if (description.length > 255) {
+    description = description.slice(0, 255);
+  }
+
   return {
-    data_type: "text",
+    data_type: 'text',
     display_name: data.name,
-    uid: newId.toLowerCase(),
+    uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
     field_metadata: {
-      description: "",
+      description: description || '',
       markdown: true,
-      placeholder: defaultText,
-      instruction: "",
+      placeholder: defaultText ?? '',
+      instruction: '',
     },
-    mandatory: false,
+    format: regrexValue ?? '',
+    error_messages: { format: validationErrorMessage ?? '' },
+    mandatory: data?.required ?? false,
     multiple: false,
-    non_localizable: false,
-    unique: false,
+    non_localizable: !(data?.localized === true) || false,
+    unique: uniqueValue ?? false,
   };
 }
 
@@ -199,13 +220,13 @@ function dropdownText(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
   let choices = [];
   if (data.validations.length === 0 || data.validations.length === undefined) {
-    choices.push({ value: "value", key: "key" });
+    choices.push({ value: 'value', key: 'key' });
   } else {
     Object.values(data.validations).map((valid) => {
       if (valid.in) {
@@ -219,6 +240,9 @@ function dropdownText(data) {
     });
   }
 
+  let defaultValue;
+  let defaultKey;
+
   // for default value and key
   if (data.defaultValue !== undefined) {
     for (const [key, value] of Object.entries(data.defaultValue)) {
@@ -229,29 +253,42 @@ function dropdownText(data) {
       }
       defaultValue = value;
     }
-  } else {
-    defaultValue = "";
-    defaultKey = "";
+  }
+
+  let regrexValue;
+  let uniqueValue;
+  let validationErrorMessage;
+  for (const validationValue of data.validations) {
+    regrexValue = validationValue?.regexp?.pattern;
+    validationErrorMessage = validationValue?.message;
+    uniqueValue = validationValue?.unique;
+  }
+
+  let description = data?.settings?.helpText || data?.contentDescription || '';
+  if (description.length > 255) {
+    description = description.slice(0, 255);
   }
 
   return {
-    data_type: "text",
+    data_type: 'text',
     display_name: data.name,
-    display_type: "dropdown",
+    display_type: 'dropdown',
     enum: {
       advanced: true,
       choices: choices,
     },
     multiple: false,
-    uid: newId.toLowerCase(),
+    uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
     field_metadata: {
-      description: "",
-      default_value: defaultValue,
-      default_key: defaultKey,
+      description: description || '',
+      default_value: defaultValue ?? '',
+      default_key: defaultKey ?? '',
     },
-    mandatory: false,
-    non_localizable: false,
-    unique: false,
+    format: regrexValue ?? '',
+    error_messages: { format: validationErrorMessage ?? '' },
+    mandatory: data?.required ?? false,
+    non_localizable: !(data?.localized === true) || false,
+    unique: uniqueValue ?? false,
   };
 }
 
@@ -260,7 +297,7 @@ function dropdownNumber(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
@@ -289,30 +326,43 @@ function dropdownNumber(data) {
         defaultKey = d_key.key;
       }
     }
-    defaultValue = Object.values(data.defaultValue).join("");
-  } else {
-    defaultValue = "";
-    defaultKey = "";
+    defaultValue = Object.values(data.defaultValue).join('');
+  }
+
+  let regrexValue;
+  let uniqueValue;
+  let validationErrorMessage;
+  for (const validationValue of data.validations) {
+    regrexValue = validationValue?.regexp?.pattern;
+    validationErrorMessage = validationValue?.message;
+    uniqueValue = validationValue?.unique;
+  }
+
+  let description = data?.settings?.helpText || data?.contentDescription || '';
+  if (description.length > 255) {
+    description = description.slice(0, 255);
   }
 
   return {
-    data_type: "number",
+    data_type: 'number',
     display_name: data.name,
-    display_type: "dropdown",
+    display_type: 'dropdown',
     enum: {
       advanced: true,
       choices: choices,
     },
     multiple: false,
-    uid: newId.toLowerCase(),
+    uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
     field_metadata: {
-      description: "",
-      default_value: defaultValue,
-      default_key: defaultKey,
+      description: description || '',
+      default_value: defaultValue ?? '',
+      default_key: defaultKey ?? '',
     },
-    mandatory: false,
-    non_localizable: false,
-    unique: false,
+    format: regrexValue ?? '',
+    error_messages: { format: validationErrorMessage ?? '' },
+    mandatory: data?.required ?? false,
+    non_localizable: !(data?.localized === true) || false,
+    unique: uniqueValue ?? false,
   };
 }
 
@@ -321,13 +371,13 @@ function radioText(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
   let choices = [];
   if (data.validations.length === 0 || data.validations.length === undefined) {
-    choices.push({ value: "value", key: "key" });
+    choices.push({ value: 'value', key: 'key' });
   } else {
     Object.values(data.validations).map((valid) => {
       if (valid.in) {
@@ -341,6 +391,9 @@ function radioText(data) {
     });
   }
 
+  let defaultValue;
+  let defaultKey;
+
   // for default value and key
   if (data.defaultValue !== undefined) {
     for (const [key, value] of Object.entries(data.defaultValue)) {
@@ -351,29 +404,42 @@ function radioText(data) {
       }
       defaultValue = value;
     }
-  } else {
-    defaultValue = "";
-    defaultKey = "";
+  }
+
+  let regrexValue;
+  let uniqueValue;
+  let validationErrorMessage;
+  for (const validationValue of data.validations) {
+    regrexValue = validationValue?.regexp?.pattern;
+    validationErrorMessage = validationValue?.message;
+    uniqueValue = validationValue?.unique;
+  }
+
+  let description = data?.settings?.helpText || data?.contentDescription || '';
+  if (description.length > 255) {
+    description = description.slice(0, 255);
   }
 
   return {
-    data_type: "text",
+    data_type: 'text',
     display_name: data.name,
-    display_type: "radio",
+    display_type: 'radio',
     enum: {
       advanced: true,
       choices: choices,
     },
     multiple: false,
-    uid: newId.toLowerCase(),
+    uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
     field_metadata: {
-      description: "",
-      default_value: defaultValue,
-      default_key: defaultKey,
+      description: description || '',
+      default_value: defaultValue ?? '',
+      default_key: defaultKey ?? '',
     },
-    mandatory: false,
-    non_localizable: false,
-    unique: false,
+    format: regrexValue ?? '',
+    error_messages: { format: validationErrorMessage ?? '' },
+    mandatory: data?.required ?? false,
+    non_localizable: !(data?.localized === true) || false,
+    unique: uniqueValue ?? false,
   };
 }
 
@@ -382,7 +448,7 @@ function radioNumber(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
@@ -409,30 +475,43 @@ function radioNumber(data) {
         defaultKey = d_key.key;
       }
     }
-    defaultValue = Object.values(data.defaultValue).join("");
-  } else {
-    defaultValue = "";
-    defaultKey = "";
+    defaultValue = Object.values(data.defaultValue).join('');
+  }
+
+  let regrexValue;
+  let uniqueValue;
+  let validationErrorMessage;
+  for (const validationValue of data.validations) {
+    regrexValue = validationValue?.regexp?.pattern;
+    validationErrorMessage = validationValue?.message;
+    uniqueValue = validationValue?.unique;
+  }
+
+  let description = data?.settings?.helpText || data?.contentDescription || '';
+  if (description.length > 255) {
+    description = description.slice(0, 255);
   }
 
   return {
-    data_type: "number",
+    data_type: 'number',
     display_name: data.name,
-    display_type: "radio",
+    display_type: 'radio',
     enum: {
       advanced: true,
       choices: choices,
     },
     multiple: false,
-    uid: newId.toLowerCase(),
+    uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
     field_metadata: {
-      description: "",
-      default_value: defaultValue,
-      default_key: defaultKey,
+      description: description || '',
+      default_value: defaultValue ?? '',
+      default_key: defaultKey ?? '',
     },
-    mandatory: false,
-    non_localizable: false,
-    unique: false,
+    format: regrexValue ?? '',
+    error_messages: { format: validationErrorMessage ?? '' },
+    mandatory: data?.required ?? false,
+    non_localizable: !(data?.localized === true) || false,
+    unique: uniqueValue ?? false,
   };
 }
 
@@ -441,7 +520,7 @@ function checkbox(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
@@ -450,7 +529,7 @@ function checkbox(data) {
     data.items.validations.length === 0 ||
     data.items.validations.length === undefined
   ) {
-    choices.push({ value: "value", key: "key" });
+    choices.push({ value: 'value', key: 'key' });
   } else {
     for (const value of Object.values(data.items.validations)[0].in) {
       choices.push({
@@ -460,24 +539,40 @@ function checkbox(data) {
     }
   }
 
+  let regrexValue;
+  let uniqueValue;
+  let validationErrorMessage;
+  for (const validationValue of data.validations) {
+    regrexValue = validationValue?.regexp?.pattern;
+    validationErrorMessage = validationValue?.message;
+    uniqueValue = validationValue?.unique;
+  }
+
+  let description = data?.settings?.helpText || data?.contentDescription || '';
+  if (description.length > 255) {
+    description = description.slice(0, 255);
+  }
+
   return {
-    data_type: "text",
+    data_type: 'text',
     display_name: data.name,
-    display_type: "checkbox",
+    display_type: 'checkbox',
     enum: {
       advanced: true,
       choices: choices,
     },
     multiple: true,
-    uid: newId.toLowerCase(),
+    uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
     field_metadata: {
-      description: "",
-      default_value: "",
-      default_key: "",
+      description: description || '',
+      default_value: '',
+      default_key: '',
     },
-    mandatory: false,
-    non_localizable: false,
-    unique: false,
+    format: regrexValue ?? '',
+    error_messages: { format: validationErrorMessage ?? '' },
+    mandatory: data?.required ?? false,
+    non_localizable: !(data?.localized === true) || false,
+    unique: uniqueValue ?? false,
   };
 }
 
@@ -486,7 +581,7 @@ function number(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
@@ -494,32 +589,54 @@ function number(data) {
   let defaultText, min, max;
   if (data.defaultValue) {
     defaultText = Object.values(data.defaultValue)[0];
-  } else {
-    defaultText = "";
   }
 
   for (const value of data.validations) {
     if (value.range !== undefined) {
       min = value.range.min;
       max = value.range.max;
-    } else {
-      min = "";
-      max = "";
     }
   }
 
-  return {
-    data_type: "number",
+  let regrexValue;
+  let uniqueValue;
+  let validationErrorMessage;
+  for (const validationValue of data.validations) {
+    regrexValue = validationValue?.regexp?.pattern;
+    validationErrorMessage = validationValue?.message;
+    uniqueValue = validationValue?.unique;
+  }
+
+  let description = data?.settings?.helpText || data?.contentDescription || '';
+  if (description.length > 255) {
+    description = description.slice(0, 255);
+  }
+
+  let custom = {
+    data_type: 'number',
     display_name: data.name,
-    uid: newId.toLowerCase(),
-    field_metadata: { description: "", default_value: defaultText },
-    mandatory: false,
+    uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
+    field_metadata: {
+      description: description || '',
+      default_value: defaultText ?? '',
+    },
+    format: regrexValue ?? '',
+    error_messages: { format: validationErrorMessage ?? '' },
+    mandatory: data?.required ?? false,
     multiple: false,
-    non_localizable: false,
-    unique: false,
-    min: min,
-    max: max,
+    non_localizable: !(data?.localized === true) || false,
+    unique: uniqueValue ?? false,
   };
+
+  // Check if min and max values are present
+  if (min !== undefined) {
+    custom.min = min;
+  }
+  if (max !== undefined) {
+    custom.max = max;
+  }
+
+  return custom;
 }
 
 // for Boolean
@@ -527,27 +644,42 @@ function boolean(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
   let defaultText;
   if (data.defaultValue) {
     defaultText = Object.values(data.defaultValue)[0];
-  } else {
-    defaultText = "";
   }
+
+  let regrexValue;
+  let uniqueValue;
+  let validationErrorMessage;
+  for (const validationValue of data.validations) {
+    regrexValue = validationValue?.regexp?.pattern;
+    validationErrorMessage = validationValue?.message;
+    uniqueValue = validationValue?.unique;
+  }
+
+  let description = data?.settings?.helpText || data?.contentDescription || '';
+  if (description.length > 255) {
+    description = description.slice(0, 255);
+  }
+
   return {
-    data_type: "boolean",
+    data_type: 'boolean',
     display_name: data.name,
-    uid: newId.toLowerCase(),
+    uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
     field_metadata: {
-      description: "",
-      default_value: defaultText,
+      description: description || '',
+      default_value: defaultText ?? '',
     },
+    format: regrexValue ?? '',
+    error_messages: { format: validationErrorMessage ?? '' },
     multiple: false,
-    mandatory: false,
-    unique: false,
+    mandatory: data?.required ?? false,
+    unique: uniqueValue ?? false,
   };
 }
 
@@ -556,29 +688,44 @@ function date(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
   let defaultText;
   if (data.defaultValue) {
     defaultText = Object.values(data.defaultValue)[0];
-  } else {
-    defaultText = "";
   }
+
+  let regrexValue;
+  let uniqueValue;
+  let validationErrorMessage;
+  for (const validationValue of data.validations) {
+    regrexValue = validationValue?.regexp?.pattern;
+    validationErrorMessage = validationValue?.message;
+    uniqueValue = validationValue?.unique;
+  }
+
+  let description = data?.settings?.helpText || data?.contentDescription || '';
+  if (description.length > 255) {
+    description = description.slice(0, 255);
+  }
+
   return {
-    data_type: "isodate",
+    data_type: 'isodate',
     display_name: data.name,
-    uid: newId.toLowerCase(),
+    uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
     startDate: null,
     endDate: null,
     field_metadata: {
-      description: "",
-      default_value: defaultText,
+      description: description || '',
+      default_value: defaultText ?? '',
     },
+    format: regrexValue ?? '',
+    error_messages: { format: validationErrorMessage ?? '' },
     multiple: false,
-    mandatory: false,
-    unique: false,
+    mandatory: data?.required ?? false,
+    unique: uniqueValue ?? false,
   };
 }
 
@@ -587,27 +734,44 @@ function files(data) {
   let replaceid, newId, singleRef;
 
   // checking for single image
-  if (data.widgetId === "assetLinkEditor") {
+  if (data.widgetId === 'assetLinkEditor') {
     singleRef = false;
   } else {
     singleRef = true;
   }
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
+
+  let regrexValue;
+  let uniqueValue;
+  let validationErrorMessage;
+  for (const validationValue of data.validations) {
+    regrexValue = validationValue?.regexp?.pattern;
+    validationErrorMessage = validationValue?.message;
+    uniqueValue = validationValue?.unique;
+  }
+
+  let description = data?.settings?.helpText || data?.contentDescription || '';
+  if (description.length > 255) {
+    description = description.slice(0, 255);
+  }
+
   return {
-    data_type: "file",
+    data_type: 'file',
     display_name: data.name,
-    uid: newId.toLowerCase(),
+    uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
     extensions: [],
-    field_metadata: { description: "" },
-    mandatory: false,
+    format: regrexValue ?? '',
+    error_messages: { format: validationErrorMessage ?? '' },
+    field_metadata: { description: description || '' },
+    mandatory: data?.required ?? false,
     multiple: singleRef,
-    non_localizable: false,
-    unique: false,
+    non_localizable: !(data?.localized === true) || false,
+    unique: uniqueValue ?? false,
   };
 }
 
@@ -616,7 +780,7 @@ function link(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
@@ -625,24 +789,38 @@ function link(data) {
   if (data.defaultValue) {
     defaultTitle = data.name;
     defaultText = Object.values(data.defaultValue)[0];
-  } else {
-    defaultTitle = "";
-    defaultText = "";
   }
+
+  let regrexValue;
+  let uniqueValue;
+  let validationErrorMessage;
+  for (const validationValue of data.validations) {
+    regrexValue = validationValue?.regexp?.pattern;
+    validationErrorMessage = validationValue?.message;
+    uniqueValue = validationValue?.unique;
+  }
+
+  let description = data?.settings?.helpText || data?.contentDescription || '';
+  if (description.length > 255) {
+    description = description.slice(0, 255);
+  }
+
   return {
-    data_type: "link",
+    data_type: 'link',
     display_name: data.name,
-    uid: newId.toLowerCase(),
+    uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
     field_metadata: {
-      description: "",
+      description: description || '',
       default_value: {
-        title: defaultTitle,
-        url: defaultText,
+        title: defaultTitle ?? '',
+        url: defaultText ?? '',
       },
     },
+    format: regrexValue ?? '',
+    error_messages: { format: validationErrorMessage ?? '' },
     multiple: false,
-    mandatory: false,
-    unique: false,
+    mandatory: data?.required ?? false,
+    unique: uniqueValue ?? false,
   };
 }
 
@@ -651,8 +829,8 @@ function reference(data) {
   let singleRef;
   // checking for single refernece
   if (
-    data.widgetId === "entryLinkEditor" ||
-    data.widgetId === "entryCardEditor"
+    data.widgetId === 'entryLinkEditor' ||
+    data.widgetId === 'entryCardEditor'
   ) {
     singleRef = false;
   } else {
@@ -663,7 +841,7 @@ function reference(data) {
 
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
@@ -679,12 +857,17 @@ function reference(data) {
           const commonRef = entries.linkContentType.filter(
             (e) =>
               data.contentNames.indexOf(
-                e.replace(/([A-Z])/g, "_$1").toLowerCase()
+                e.replace(/([A-Z])/g, '_$1').toLowerCase()
               ) !== -1
           );
           for (const entry of commonRef) {
-            newRef.push(entry.replace(/([A-Z])/g, "_$1").toLowerCase());
+            newRef.push(entry.replace(/([A-Z])/g, '_$1').toLowerCase());
           }
+          if (!commonRef.length > 0) {
+            newRef.push(...data.contentNames.slice(0, 9));
+          }
+
+          // console.log("hey check this", typeof commonRef, "\n\n", commonRef);
           referenceFields = newRef;
         }
       }
@@ -697,9 +880,21 @@ function reference(data) {
     }
   } else {
     if (data.items.validations[0] !== undefined) {
-      for (const ref of data.items.validations[0].linkContentType) {
-        newRef.push(ref.replace(/([A-Z])/g, "_$1").toLowerCase());
+      const commonRef = data.items.validations[0].linkContentType.filter(
+        (e) =>
+          data.contentNames.indexOf(
+            e.replace(/([A-Z])/g, '_$1').toLowerCase()
+          ) !== -1
+      );
+      for (const entry of commonRef) {
+        newRef.push(entry.replace(/([A-Z])/g, '_$1').toLowerCase());
       }
+      if (!commonRef.length > 0) {
+        newRef.push(...data.contentNames.slice(0, 9));
+      }
+      // for (const ref of data.items.validations[0].linkContentType) {
+      //   newRef.push(ref.replace(/([A-Z])/g, "_$1").toLowerCase());
+      // }
       referenceFields = newRef;
     } else {
       if (data.validations.length > 0) {
@@ -721,19 +916,37 @@ function reference(data) {
       }
     }
   }
+
+  let regrexValue;
+  let uniqueValue;
+  let validationErrorMessage;
+  for (const validationValue of data.validations) {
+    regrexValue = validationValue?.regexp?.pattern;
+    validationErrorMessage = validationValue?.message;
+    uniqueValue = validationValue?.unique;
+  }
+
+  let description = data?.settings?.helpText || data?.contentDescription || '';
+  if (description.length > 255) {
+    description = description.slice(0, 255);
+  }
+
   return {
-    data_type: "reference",
+    data_type: 'reference',
     display_name: data.name,
     reference_to: referenceFields,
     field_metadata: {
+      description: description || '',
       ref_multiple: singleRef,
       ref_multiple_content_types: true,
     },
-    uid: newId.toLowerCase(),
-    mandatory: false,
+    uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
+    mandatory: data?.required ?? false,
+    format: regrexValue ?? '',
+    error_messages: { format: validationErrorMessage ?? '' },
     multiple: singleRef,
-    non_localizable: false,
-    unique: false,
+    non_localizable: !(data?.localized === true) || false,
+    unique: uniqueValue ?? false,
   };
 }
 
@@ -741,19 +954,36 @@ function url(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
+
+  let regrexValue;
+  let uniqueValue;
+  let validationErrorMessage;
+  for (const validationValue of data.validations) {
+    regrexValue = validationValue?.regexp?.pattern;
+    validationErrorMessage = validationValue?.message;
+    uniqueValue = validationValue?.unique;
+  }
+
+  let description = data?.settings?.helpText || data?.contentDescription || '';
+  if (description.length > 255) {
+    description = description.slice(0, 255);
+  }
+
   return {
-    data_type: "text",
+    data_type: 'text',
     display_name: data.name,
-    uid: newId.toLowerCase(),
-    field_metadata: { _default: true },
+    uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
+    field_metadata: { description: description || '', _default: true },
     multiple: false,
-    unique: false,
-    mandatory: false,
-    non_localizable: false,
+    format: regrexValue ?? '',
+    error_messages: { format: validationErrorMessage ?? '' },
+    unique: uniqueValue ?? false,
+    mandatory: data?.required ?? false,
+    non_localizable: !(data?.localized === true) || false,
   };
 }
 
@@ -762,41 +992,60 @@ function location(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
+  let uniqueValue;
+  for (const validationValue of data.validations) {
+    uniqueValue = validationValue?.unique;
+  }
+
+  let description = data?.settings?.helpText || data?.contentDescription || '';
+  if (description.length > 255) {
+    description = description.slice(0, 255);
+  }
+
   return {
-    data_type: "group",
+    data_type: 'group',
     display_name: data.name,
-    field_metadata: { description: "", instruction: "" },
+    field_metadata: {
+      description: description || '',
+      instruction: '',
+    },
     schema: [
       {
-        data_type: "number",
-        display_name: "lat",
-        uid: "lat",
-        field_metadata: { description: "", default_value: "" },
-        mandatory: false,
+        data_type: 'number',
+        display_name: 'lat',
+        uid: 'lat',
+        field_metadata: {
+          description: description || '',
+          default_value: '',
+        },
+        mandatory: data?.required ?? false,
         multiple: false,
-        non_localizable: false,
+        non_localizable: !(data?.localized === true) || false,
         unique: false,
       },
       {
-        data_type: "number",
-        display_name: "lon",
-        uid: "lon",
-        field_metadata: { description: "", default_value: "" },
-        mandatory: false,
+        data_type: 'number',
+        display_name: 'lon',
+        uid: 'lon',
+        field_metadata: {
+          description: description || '',
+          default_value: '',
+        },
+        mandatory: data?.required ?? false,
         multiple: false,
-        non_localizable: false,
+        non_localizable: !(data?.localized === true) || false,
         unique: false,
       },
     ],
-    uid: newId.toLowerCase(),
-    mandatory: false,
+    uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
+    mandatory: data?.required ?? false,
     multiple: false,
-    non_localizable: false,
-    unique: false,
+    non_localizable: !(data?.localized === true) || false,
+    unique: uniqueValue ?? false,
   };
 }
 
@@ -805,7 +1054,7 @@ function rating(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
@@ -824,7 +1073,7 @@ function rating(data) {
     if (data.defaultValue !== undefined) {
       for (
         var value = 0;
-        value <= Object.values(data.defaultValue).join("");
+        value <= Object.values(data.defaultValue).join('');
         value++
       ) {
         choices.push({
@@ -862,30 +1111,43 @@ function rating(data) {
         defaultKey = d_key.key;
       }
     }
-    defaultValue = Object.values(data.defaultValue).join("");
-  } else {
-    defaultValue = "";
-    defaultKey = "";
+    defaultValue = Object.values(data.defaultValue).join('');
+  }
+
+  let regrexValue;
+  let uniqueValue;
+  let validationErrorMessage;
+  for (const validationValue of data.validations) {
+    regrexValue = validationValue?.regexp?.pattern;
+    validationErrorMessage = validationValue?.message;
+    uniqueValue = validationValue?.unique;
+  }
+
+  let description = data?.settings?.helpText || data?.contentDescription || '';
+  if (description.length > 255) {
+    description = description.slice(0, 255);
   }
 
   return {
-    data_type: "number",
+    data_type: 'number',
     display_name: data.name,
-    display_type: "dropdown",
+    display_type: 'dropdown',
     enum: {
       advanced: true,
       choices: choices,
     },
     multiple: false,
-    uid: newId.toLowerCase(),
+    uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
     field_metadata: {
-      description: "",
-      default_value: defaultValue,
-      default_key: defaultKey,
+      description: description || '',
+      default_value: defaultValue ?? '',
+      default_key: defaultKey ?? '',
     },
-    mandatory: false,
-    non_localizable: false,
-    unique: false,
+    format: regrexValue ?? '',
+    error_messages: { format: validationErrorMessage ?? '' },
+    mandatory: data?.required ?? false,
+    non_localizable: !(data?.localized === true) || false,
+    unique: uniqueValue ?? false,
   };
 }
 
@@ -894,21 +1156,38 @@ function jsonObject(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
+
+  let regrexValue;
+  let uniqueValue;
+  let validationErrorMessage;
+  for (const validationValue of data.validations) {
+    regrexValue = validationValue?.regexp?.pattern;
+    validationErrorMessage = validationValue?.message;
+    uniqueValue = validationValue?.unique;
+  }
+
+  let description = data?.settings?.helpText || data?.contentDescription || '';
+  if (description.length > 255) {
+    description = description.slice(0, 255);
+  }
+
   return {
     display_name: data.name,
-    extension_uid: "jsonobject_extension",
-    field_metadata: { extension: true },
-    uid: newId.toLowerCase(),
-    mandatory: false,
+    extension_uid: 'jsonobject_extension',
+    field_metadata: { extension: true, description: description || '' },
+    uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
+    mandatory: data?.required ?? false,
     multiple: false,
-    non_localizable: false,
-    unique: false,
+    non_localizable: !(data?.localized === true) || false,
+    unique: uniqueValue ?? false,
+    format: regrexValue ?? '',
+    error_messages: { format: validationErrorMessage ?? '' },
     config: {},
-    data_type: "json",
+    data_type: 'json',
   };
 }
 
@@ -917,20 +1196,37 @@ function tagEditor(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
-    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, "_");
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
+
+  let regrexValue;
+  let uniqueValue;
+  let validationErrorMessage;
+  for (const validationValue of data.validations) {
+    regrexValue = validationValue?.regexp?.pattern;
+    validationErrorMessage = validationValue?.message;
+    uniqueValue = validationValue?.unique;
+  }
+
+  let description = data?.settings?.helpText || data?.contentDescription || '';
+  if (description.length > 255) {
+    description = description.slice(0, 255);
+  }
+
   return {
     display_name: data.name,
-    extension_uid: "listview_extension",
-    field_metadata: { extension: true },
-    uid: newId.toLowerCase(),
-    mandatory: false,
-    non_localizable: false,
-    unique: false,
+    extension_uid: 'listview_extension',
+    field_metadata: { extension: true, description: description || '' },
+    uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
+    mandatory: data?.required ?? false,
+    non_localizable: !(data?.localized === true) || false,
+    unique: uniqueValue ?? false,
+    format: regrexValue ?? '',
+    error_messages: { format: validationErrorMessage ?? '' },
     config: {},
-    data_type: "json",
+    data_type: 'json',
     multiple: false,
   };
 }

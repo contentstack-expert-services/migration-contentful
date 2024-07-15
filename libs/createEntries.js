@@ -1,17 +1,17 @@
-"use strict";
+'use strict';
 /**
  * External module Dependencies.
  */
-var mkdirp = require("mkdirp"),
-  path = require("path"),
-  fs = require("fs"),
-  when = require("when");
+var mkdirp = require('mkdirp'),
+  path = require('path'),
+  fs = require('fs'),
+  when = require('when');
 
 /**
  * Internal module Dependencies .
  */
 
-var helper = require("../utils/helper");
+var helper = require('../utils/helper');
 
 var entryFolderPath = path.resolve(config.data, config.entryfolder);
 
@@ -25,66 +25,69 @@ ExtractEntries.prototype = {
   saveEntry: function (entry, prefix) {
     var self = this;
     return when.promise(function (resolve, reject) {
-      let localeId = helper.readFile(
-        path.join(
-          process.cwd(),
-          "contentfulMigrationData/language/language.json"
-        )
-      );
-      entry.map((entryData) => {
-        Object.values(localeId).forEach(async (i) => {
-          //check if file exist or not
-          if (
-            !fs.existsSync(
-              path.join(
-                entryFolderPath,
-                entryData.sys.contentType.sys.id
-                  .replace(/([A-Z])/g, "_$1")
-                  .toLowerCase()
+      try {
+        let localeId = helper.readFile(
+          path.join(process.cwd(), config.data, 'locales', 'language.json')
+        );
+        entry.map((entryData) => {
+          Object.values(localeId).forEach(async (i) => {
+            //check if file exist or not
+            if (
+              !fs.existsSync(
+                path.join(
+                  entryFolderPath,
+                  entryData.sys.contentType.sys.id
+                    .replace(/([A-Z])/g, '_$1')
+                    .toLowerCase()
+                )
               )
-            )
-          ) {
-            // create folder with the content type name
-            mkdirp.sync(
-              path.join(
-                entryFolderPath,
-                entryData.sys.contentType.sys.id
-                  .replace(/([A-Z])/g, "_$1")
-                  .toLowerCase()
-              )
-            );
-            // create JSON file in the created folders with locale name
-            helper.writeFile(
-              path.join(
-                entryFolderPath,
-                entryData.sys.contentType.sys.id
-                  .replace(/([A-Z])/g, "_$1")
-                  .toLowerCase(),
-                `${i.code}.json`
-              )
-            );
-          } else {
-            mkdirp.sync(
-              path.join(
-                entryFolderPath,
-                entryData.sys.contentType.sys.id
-                  .replace(/([A-Z])/g, "_$1")
-                  .toLowerCase()
-              )
-            );
-            // create JSON file in the created folders with locale name
-            helper.writeFile(
-              path.join(
-                entryFolderPath,
-                entryData.sys.contentType.sys.id
-                  .replace(/([A-Z])/g, "_$1")
-                  .toLowerCase(),
-                `${i.code}.json`
-              )
-            );
-          }
+            ) {
+              // create folder with the content type name
+              mkdirp.sync(
+                path.join(
+                  entryFolderPath,
+                  entryData.sys.contentType.sys.id
+                    .replace(/([A-Z])/g, '_$1')
+                    .toLowerCase()
+                )
+              );
+              // create JSON file in the created folders with locale name
+              helper.writeFile(
+                path.join(
+                  entryFolderPath,
+                  entryData.sys.contentType.sys.id
+                    .replace(/([A-Z])/g, '_$1')
+                    .toLowerCase(),
+                  `${i.code}.json`
+                )
+              );
+            } else {
+              mkdirp.sync(
+                path.join(
+                  entryFolderPath,
+                  entryData.sys.contentType.sys.id
+                    .replace(/([A-Z])/g, '_$1')
+                    .toLowerCase()
+                )
+              );
+              // create JSON file in the created folders with locale name
+              helper.writeFile(
+                path.join(
+                  entryFolderPath,
+                  entryData.sys.contentType.sys.id
+                    .replace(/([A-Z])/g, '_$1')
+                    .toLowerCase(),
+                  `${i.code}.json`
+                )
+              );
+            }
+          });
         });
-      });
+        resolve();
+      } catch (error) {
+        console.log(error);
+        reject();
+      }
     });
   },
   getAllEntries: function (prefix) {
