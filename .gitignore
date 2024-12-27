@@ -1,7 +1,8 @@
-contentfulMigrationData
+contentfulMigrationData*
 node_modules
 logs
 package-lock.json
 /package-lock.json
 wipro*
 _backup_*
+contentful.json

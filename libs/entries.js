@@ -187,7 +187,7 @@ ExtractEntries.prototype = {
         // Create an array to hold all the promises for file writing
         const writePromises = [];
 
-        entry.map(async (entryData) => {
+        entry.map((entryData) => {
           Object.values(localeId).forEach(async (i) => {
             const filePath = createFilePath(entryData, i);
             if (!fs.existsSync(filePath)) {
@@ -236,6 +236,7 @@ ExtractEntries.prototype = {
               },
               {}
             );
+
             // Write data
           });
 

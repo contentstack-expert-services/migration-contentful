@@ -298,15 +298,10 @@ function parseLI(obj) {
 
 function parseBlockReference(obj, lang) {
   let entryId = helper.readFile(
-    path.join(
-      process.cwd(),
-      'csMigrationData',
-      'rteReferences',
-      'rteReferences.json'
-    )
+    path.join(process.cwd(), config.data, 'rteReferences', 'rteReferences.json')
   );
   const defaultLocale = helper.readFile(
-    path.join(process.cwd(), 'csMigrationData', 'locales', 'master-locale.json')
+    path.join(process.cwd(), config.data, 'locales', 'master-locale.json')
   );
   let masterLocale = Object.values(defaultLocale)
     .map((localeId) => localeId.code)
@@ -359,12 +354,7 @@ function parseBlockReference(obj, lang) {
 
 function parseInlineReference(obj, lang) {
   let entryId = helper.readFile(
-    path.join(
-      process.cwd(),
-      'csMigrationData',
-      'rteReferences',
-      'rteReferences.json'
-    )
+    path.join(process.cwd(), config.data, 'rteReferences', 'rteReferences.json')
   );
 
   let type = 'reference';
@@ -399,7 +389,7 @@ function parseInlineReference(obj, lang) {
 
 function parseBlockAsset(obj) {
   let assetId = helper.readFile(
-    path.join(process.cwd(), 'csMigrationData', 'assets', 'assets.json')
+    path.join(process.cwd(), config.data, 'assets', 'assets.json')
   );
   let type = '';
   let uid = 'asset' + Math.floor(Math.random() * 100000000000000);
@@ -566,7 +556,7 @@ function parseHeading6(obj) {
 
 function parseAssetHyperlink(obj) {
   let assetId = helper.readFile(
-    path.join(process.cwd(), 'csMigrationData', 'assets', 'assets.json')
+    path.join(process.cwd(), config.data, 'assets', 'assets.json')
   );
   let type = '';
   let uid = 'reference' + Math.floor(Math.random() * 100000000000000);
@@ -602,12 +592,7 @@ function parseAssetHyperlink(obj) {
 
 function parseEntryHyperlink(obj, lang) {
   let entryId = helper.readFile(
-    path.join(
-      process.cwd(),
-      'csMigrationData',
-      'rteReferences',
-      'rteReferences.json'
-    )
+    path.join(process.cwd(), config.data, 'rteReferences', 'rteReferences.json')
   );
 
   let type, uid, children, attrs;
