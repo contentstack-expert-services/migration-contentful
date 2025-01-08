@@ -132,6 +132,11 @@ const processField = (lang_value, entryId, assetId, lang) => {
                 return lang_value;
               }
             }
+          } else {
+            // this is added to return the checkbox values
+            if (Array.isArray(lang_value)) {
+              return lang_value;
+            }
           }
         }
       }
@@ -167,10 +172,10 @@ ExtractEntries.prototype = {
         let assetId = helper.readFile(
           path.join(process.cwd(), config.data, 'assets', 'assets.json')
         );
+
         let entryId = helper.readFile(
           path.join(process.cwd(), config.data, 'references', 'reference.json')
         );
-
         let localeId = helper.readFile(
           path.join(process.cwd(), config.data, 'locales', 'language.json')
         );
@@ -183,6 +188,7 @@ ExtractEntries.prototype = {
             'environments.json'
           )
         );
+
         let result;
         // Create an array to hold all the promises for file writing
         const writePromises = [];
@@ -223,7 +229,6 @@ ExtractEntries.prototype = {
                     } else {
                       newId = key;
                     }
-
                     entry_data[name][lang][id][newId] = processField(
                       lang_value,
                       entryId,

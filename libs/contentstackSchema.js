@@ -850,9 +850,9 @@ function reference(data) {
     if (data.validations.length > 0) {
       for (const entries of data.validations) {
         if (
-          entries.linkContentType !== undefined &&
-          entries.linkContentType !== null &&
-          entries.linkContentType.length > 0
+          entries?.linkContentType !== undefined &&
+          entries?.linkContentType !== null &&
+          entries?.linkContentType.length > 0
         ) {
           const commonRef = entries.linkContentType.filter(
             (e) =>
@@ -866,20 +866,25 @@ function reference(data) {
           if (!commonRef.length > 0) {
             newRef.push(...data.contentNames.slice(0, 9));
           }
-
-          // console.log("hey check this", typeof commonRef, "\n\n", commonRef);
           referenceFields = newRef;
+        } else {
+          if (data.contentNames.length < 10) {
+            referenceFields = data.contentNames;
+          } else {
+            referenceFields = data.contentNames.slice(0, 9);
+          }
         }
       }
     } else {
-      if (data.contentNames.length < 25) {
+      if (data.contentNames.length < 10) {
         referenceFields = data.contentNames;
       } else {
         referenceFields = data.contentNames.slice(0, 9);
       }
     }
   } else {
-    if (data.items.validations[0] !== undefined) {
+    // console.log('data.items is defined', data);
+    if (data?.items.validations[0] !== undefined) {
       const commonRef = data.items.validations[0].linkContentType.filter(
         (e) =>
           data.contentNames.indexOf(
@@ -897,18 +902,24 @@ function reference(data) {
       // }
       referenceFields = newRef;
     } else {
-      if (data.validations.length > 0) {
+      if (data?.validations.length > 0) {
         for (const entries of data.validations) {
           if (
-            entries.linkContentType !== undefined &&
-            entries.linkContentType !== null &&
-            entries.linkContentType.length > 0
+            entries?.linkContentType !== undefined &&
+            entries?.linkContentType !== null &&
+            entries?.linkContentType.length > 0
           ) {
-            referenceFields = entries.linkContentType;
+            referenceFields = entries?.linkContentType;
+          } else {
+            if (data.contentNames.length < 10) {
+              referenceFields = data.contentNames;
+            } else {
+              referenceFields = data.contentNames.slice(0, 9);
+            }
           }
         }
       } else {
-        if (data.contentNames.length < 25) {
+        if (data.contentNames.length < 10) {
           referenceFields = data.contentNames;
         } else {
           referenceFields = data.contentNames.slice(0, 9);

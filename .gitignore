@@ -5,4 +5,6 @@ package-lock.json
 /package-lock.json
 wipro*
 _backup_*
+contenfulData*
 contentful.json
+.DS_Store
