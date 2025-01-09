@@ -41,7 +41,7 @@ ExtractFolders.prototype = {
     });
   },
   start: function () {
-    successLogger(`Creating assets folder...`);
+    // successLogger(`Creating assets folder...`);
     var self = this;
     return when.promise(function (resolve, reject) {
       self
