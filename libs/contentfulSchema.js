@@ -23,6 +23,9 @@ function multiLine(data) {
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
@@ -38,6 +41,9 @@ function multiLine(data) {
 function richText(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
@@ -57,6 +63,9 @@ function markdown(data) {
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
@@ -72,6 +81,9 @@ function markdown(data) {
 function dropdownText(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
@@ -91,6 +103,9 @@ function dropdownNumber(data) {
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
@@ -106,6 +121,9 @@ function dropdownNumber(data) {
 function radioText(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
@@ -125,6 +143,9 @@ function radioNumber(data) {
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
@@ -140,6 +161,9 @@ function radioNumber(data) {
 function checkbox(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
@@ -159,6 +183,9 @@ function number(data) {
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
@@ -174,6 +201,9 @@ function number(data) {
 function boolean(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
@@ -193,6 +223,9 @@ function date(data) {
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
@@ -210,6 +243,9 @@ function files(data) {
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
@@ -224,6 +260,9 @@ function files(data) {
 function link(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
@@ -243,6 +282,9 @@ function reference(data) {
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
@@ -257,6 +299,9 @@ function reference(data) {
 function url(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
@@ -275,6 +320,9 @@ function location(data) {
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
@@ -289,6 +337,9 @@ function location(data) {
 function rating(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
@@ -308,6 +359,9 @@ function jsonObject(data) {
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data?.id.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`);
   }
@@ -322,6 +376,9 @@ function jsonObject(data) {
 function tagEditor(data) {
   let replaceid, newId;
   if (idArray.includes(data.id)) {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {

@@ -8,3 +8,5 @@ _backup_*
 contenfulData*
 contentful.json
 .DS_Store
+dummy*
+contentfulData.json

@@ -64,13 +64,23 @@ function singleLine(data) {
 
 // for Multiline
 function multiLine(data) {
-  let replaceid, newId;
+  let replaceid, newId, fieldName;
   if (idArray.includes(data.id)) {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
+
+  if (data.name.toLowerCase() === 'title') {
+    fieldName = `${data.prefix} ${data.name}`;
+  } else {
+    fieldName = data.name;
+  }
+
   let defaultText;
   if (data.defaultValue) {
     defaultText = Object.values(data.defaultValue)[0];
@@ -92,7 +102,10 @@ function multiLine(data) {
 
   return {
     data_type: 'text',
-    display_name: data.name,
+    display_name:
+      data.name.toLowerCase() === 'title'
+        ? `${data.prefix.toUpperCase()} - ${data.name}`
+        : data.name,
     uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
     field_metadata: {
       description: description,
@@ -111,8 +124,11 @@ function multiLine(data) {
 // for RichText
 function richText(data) {
   let rFields = [];
-  let replaceid, newId;
+  let replaceid, newId, fieldName;
   if (idArray.includes(data.id)) {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
@@ -146,7 +162,10 @@ function richText(data) {
 
   return {
     data_type: 'json',
-    display_name: data.name,
+    display_name:
+      data.name.toLowerCase() === 'title'
+        ? `${data.prefix.toUpperCase()} - ${data.name}`
+        : data.name,
     uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
     field_metadata: {
       allow_json_rte: true,
@@ -171,13 +190,22 @@ function richText(data) {
 // for Markdown
 function markdown(data) {
   let defaultText;
-  let replaceid, newId;
+  let replaceid, newId, fieldName;
   if (idArray.includes(data.id)) {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
+  if (data.name.toLowerCase() === 'title') {
+    fieldName = `${data.prefix} ${data.name}`;
+  } else {
+    fieldName = data.name;
+  }
+
   if (data.defaultValue) {
     defaultText = Object.values(data.defaultValue)[0];
   }
@@ -198,7 +226,10 @@ function markdown(data) {
 
   return {
     data_type: 'text',
-    display_name: data.name,
+    display_name:
+      data.name.toLowerCase() === 'title'
+        ? `${data.prefix.toUpperCase()} - ${data.name}`
+        : data.name,
     uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
     field_metadata: {
       description: description || '',
@@ -217,13 +248,23 @@ function markdown(data) {
 
 // for select option but Text type dropdown
 function dropdownText(data) {
-  let replaceid, newId;
+  let replaceid, newId, fieldName;
   if (idArray.includes(data.id)) {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
+
+  if (data.name.toLowerCase() === 'title') {
+    fieldName = `${data.prefix} ${data.name}`;
+  } else {
+    fieldName = data.name;
+  }
+
   let choices = [];
   if (data.validations.length === 0 || data.validations.length === undefined) {
     choices.push({ value: 'value', key: 'key' });
@@ -271,7 +312,10 @@ function dropdownText(data) {
 
   return {
     data_type: 'text',
-    display_name: data.name,
+    display_name:
+      data.name.toLowerCase() === 'title'
+        ? `${data.prefix.toUpperCase()} - ${data.name}`
+        : data.name,
     display_type: 'dropdown',
     enum: {
       advanced: true,
@@ -294,13 +338,23 @@ function dropdownText(data) {
 
 // for select option but Number type dropdown
 function dropdownNumber(data) {
-  let replaceid, newId;
+  let replaceid, newId, fieldName;
   if (idArray.includes(data.id)) {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
+
+  if (data.name.toLowerCase() === 'title') {
+    fieldName = `${data.prefix} ${data.name}`;
+  } else {
+    fieldName = data.name;
+  }
+
   let choices = [],
     defaultValue,
     defaultKey;
@@ -345,7 +399,10 @@ function dropdownNumber(data) {
 
   return {
     data_type: 'number',
-    display_name: data.name,
+    display_name:
+      data.name.toLowerCase() === 'title'
+        ? `${data.prefix.toUpperCase()} - ${data.name}`
+        : data.name,
     display_type: 'dropdown',
     enum: {
       advanced: true,
@@ -368,13 +425,22 @@ function dropdownNumber(data) {
 
 // for radio option but Text type radio
 function radioText(data) {
-  let replaceid, newId;
+  let replaceid, newId, fieldName;
   if (idArray.includes(data.id)) {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
+  if (data.name.toLowerCase() === 'title') {
+    fieldName = `${data.prefix} ${data.name}`;
+  } else {
+    fieldName = data.name;
+  }
+
   let choices = [];
   if (data.validations.length === 0 || data.validations.length === undefined) {
     choices.push({ value: 'value', key: 'key' });
@@ -422,7 +488,10 @@ function radioText(data) {
 
   return {
     data_type: 'text',
-    display_name: data.name,
+    display_name:
+      data.name.toLowerCase() === 'title'
+        ? `${data.prefix.toUpperCase()} - ${data.name}`
+        : data.name,
     display_type: 'radio',
     enum: {
       advanced: true,
@@ -445,13 +514,23 @@ function radioText(data) {
 
 // for radio option but Number type radio
 function radioNumber(data) {
-  let replaceid, newId;
+  let replaceid, newId, fieldName;
   if (idArray.includes(data.id)) {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
+
+  if (data.name.toLowerCase() === 'title') {
+    fieldName = `${data.prefix} ${data.name}`;
+  } else {
+    fieldName = data.name;
+  }
+
   let choices = [];
   if (data.validations.length === 0 || data.validations.length === undefined) {
     choices.push({ value: 0, key: 0 });
@@ -494,7 +573,10 @@ function radioNumber(data) {
 
   return {
     data_type: 'number',
-    display_name: data.name,
+    display_name:
+      data.name.toLowerCase() === 'title'
+        ? `${data.prefix.toUpperCase()} - ${data.name}`
+        : data.name,
     display_type: 'radio',
     enum: {
       advanced: true,
@@ -517,13 +599,23 @@ function radioNumber(data) {
 
 // for checbox
 function checkbox(data) {
-  let replaceid, newId;
+  let replaceid, newId, fieldName;
   if (idArray.includes(data.id)) {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
+
+  if (data.name.toLowerCase() === 'title') {
+    fieldName = `${data.prefix} ${data.name}`;
+  } else {
+    fieldName = data.name;
+  }
+
   let choices = [];
   if (
     data.items.validations.length === 0 ||
@@ -555,7 +647,10 @@ function checkbox(data) {
 
   return {
     data_type: 'text',
-    display_name: data.name,
+    display_name:
+      data.name.toLowerCase() === 'title'
+        ? `${data.prefix.toUpperCase()} - ${data.name}`
+        : data.name,
     display_type: 'checkbox',
     enum: {
       advanced: true,
@@ -578,12 +673,20 @@ function checkbox(data) {
 
 // for Number
 function number(data) {
-  let replaceid, newId;
+  let replaceid, newId, fieldName;
   if (idArray.includes(data.id)) {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
+  }
+  if (data.name.toLowerCase() === 'title') {
+    fieldName = `${data.prefix} ${data.name}`;
+  } else {
+    fieldName = data.name;
   }
 
   let defaultText, min, max;
@@ -614,7 +717,10 @@ function number(data) {
 
   let custom = {
     data_type: 'number',
-    display_name: data.name,
+    display_name:
+      data.name.toLowerCase() === 'title'
+        ? `${data.prefix.toUpperCase()} - ${data.name}`
+        : data.name,
     uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
     field_metadata: {
       description: description || '',
@@ -641,13 +747,22 @@ function number(data) {
 
 // for Boolean
 function boolean(data) {
-  let replaceid, newId;
+  let replaceid, newId, fieldName;
   if (idArray.includes(data.id)) {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
+  if (data.name.toLowerCase() === 'title') {
+    fieldName = `${data.prefix} ${data.name}`;
+  } else {
+    fieldName = data.name;
+  }
+
   let defaultText;
   if (data.defaultValue) {
     defaultText = Object.values(data.defaultValue)[0];
@@ -669,7 +784,10 @@ function boolean(data) {
 
   return {
     data_type: 'boolean',
-    display_name: data.name,
+    display_name:
+      data.name.toLowerCase() === 'title'
+        ? `${data.prefix.toUpperCase()} - ${data.name}`
+        : data.name,
     uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
     field_metadata: {
       description: description || '',
@@ -685,13 +803,22 @@ function boolean(data) {
 
 // for Date
 function date(data) {
-  let replaceid, newId;
+  let replaceid, newId, fieldName;
   if (idArray.includes(data.id)) {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
+  if (data.name.toLowerCase() === 'title') {
+    fieldName = `${data.prefix} ${data.name}`;
+  } else {
+    fieldName = data.name;
+  }
+
   let defaultText;
   if (data.defaultValue) {
     defaultText = Object.values(data.defaultValue)[0];
@@ -713,7 +840,10 @@ function date(data) {
 
   return {
     data_type: 'isodate',
-    display_name: data.name,
+    display_name:
+      data.name.toLowerCase() === 'title'
+        ? `${data.prefix.toUpperCase()} - ${data.name}`
+        : data.name,
     uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
     startDate: null,
     endDate: null,
@@ -731,7 +861,10 @@ function date(data) {
 
 // for files
 function files(data) {
-  let replaceid, newId, singleRef;
+  let replaceid,
+    newId,
+    singleRef,
+    fieldName = data.name;
 
   // checking for single image
   if (data.widgetId === 'assetLinkEditor') {
@@ -742,8 +875,16 @@ function files(data) {
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
+  }
+  if (data.name.toLowerCase() === 'title') {
+    fieldName = `${data.prefix} ${data.name}`;
+  } else {
+    fieldName = data.name;
   }
 
   let regrexValue;
@@ -762,7 +903,10 @@ function files(data) {
 
   return {
     data_type: 'file',
-    display_name: data.name,
+    display_name:
+      data.name.toLowerCase() === 'title'
+        ? `${data.prefix.toUpperCase()} - ${data.name}`
+        : data.name,
     uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
     extensions: [],
     format: regrexValue ?? '',
@@ -777,12 +921,20 @@ function files(data) {
 
 // for URL
 function link(data) {
-  let replaceid, newId;
+  let replaceid, newId, fieldName;
   if (idArray.includes(data.id)) {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
+  }
+  if (data.name.toLowerCase() === 'title') {
+    fieldName = `${data.prefix} ${data.name}`;
+  } else {
+    fieldName = data.name;
   }
 
   let defaultText, defaultTitle;
@@ -807,7 +959,10 @@ function link(data) {
 
   return {
     data_type: 'link',
-    display_name: data.name,
+    display_name:
+      data.name.toLowerCase() === 'title'
+        ? `${data.prefix.toUpperCase()} - ${data.name}`
+        : data.name,
     uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
     field_metadata: {
       description: description || '',
@@ -836,14 +991,25 @@ function reference(data) {
   } else {
     singleRef = true;
   }
-  let replaceid, newId, referenceFields;
+  let replaceid,
+    newId,
+    referenceFields,
+    fieldName = data.name;
   let newRef = [];
 
   if (idArray.includes(data.id)) {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
+  }
+  if (data.name.toLowerCase() === 'title') {
+    fieldName = `${data.prefix} ${data.name}`;
+  } else {
+    fieldName = data.name;
   }
 
   if (!data.items) {
@@ -944,7 +1110,10 @@ function reference(data) {
 
   return {
     data_type: 'reference',
-    display_name: data.name,
+    display_name:
+      data.name.toLowerCase() === 'title'
+        ? `${data.prefix.toUpperCase()} - ${data.name}`
+        : data.name,
     reference_to: referenceFields,
     field_metadata: {
       description: description || '',
@@ -962,12 +1131,20 @@ function reference(data) {
 }
 
 function url(data) {
-  let replaceid, newId;
+  let replaceid, newId, fieldName;
   if (idArray.includes(data.id)) {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
+  }
+  if (data.name.toLowerCase() === 'title') {
+    fieldName = `${data.prefix} ${data.name}`;
+  } else {
+    fieldName = data.name;
   }
 
   let regrexValue;
@@ -986,7 +1163,10 @@ function url(data) {
 
   return {
     data_type: 'text',
-    display_name: data.name,
+    display_name:
+      data.name.toLowerCase() === 'title'
+        ? `${data.prefix.toUpperCase()} - ${data.name}`
+        : data.name,
     uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
     field_metadata: { description: description || '', _default: true },
     multiple: false,
@@ -1000,13 +1180,22 @@ function url(data) {
 
 // we don't have location field in contantstack so we used Group field with number field in ir
 function location(data) {
-  let replaceid, newId;
+  let replaceid, newId, fieldName;
   if (idArray.includes(data.id)) {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
+  if (data.name.toLowerCase() === 'title') {
+    fieldName = `${data.prefix} ${data.name}`;
+  } else {
+    fieldName = data.name;
+  }
+
   let uniqueValue;
   for (const validationValue of data.validations) {
     uniqueValue = validationValue?.unique;
@@ -1019,7 +1208,10 @@ function location(data) {
 
   return {
     data_type: 'group',
-    display_name: data.name,
+    display_name:
+      data.name.toLowerCase() === 'title'
+        ? `${data.prefix.toUpperCase()} - ${data.name}`
+        : data.name,
     field_metadata: {
       description: description || '',
       instruction: '',
@@ -1062,13 +1254,22 @@ function location(data) {
 
 // we don't have rating so we have used dropdown
 function rating(data) {
-  let replaceid, newId;
+  let replaceid, newId, fieldName;
   if (idArray.includes(data.id)) {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
   }
+  if (data.name.toLowerCase() === 'title') {
+    fieldName = `${data.prefix} ${data.name}`;
+  } else {
+    fieldName = data.name;
+  }
+
   // console.log(data
   let choices = [],
     defaultValue,
@@ -1141,7 +1342,10 @@ function rating(data) {
 
   return {
     data_type: 'number',
-    display_name: data.name,
+    display_name:
+      data.name.toLowerCase() === 'title'
+        ? `${data.prefix.toUpperCase()} - ${data.name}`
+        : data.name,
     display_type: 'dropdown',
     enum: {
       advanced: true,
@@ -1164,12 +1368,20 @@ function rating(data) {
 
 // for JSON Object
 function jsonObject(data) {
-  let replaceid, newId;
+  let replaceid, newId, fieldName;
   if (idArray.includes(data.id)) {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
+  }
+  if (data.name.toLowerCase() === 'title') {
+    fieldName = `${data.prefix} ${data.name}`;
+  } else {
+    fieldName = data.name;
   }
 
   let regrexValue;
@@ -1187,7 +1399,10 @@ function jsonObject(data) {
   }
 
   return {
-    display_name: data.name,
+    display_name:
+      data.name.toLowerCase() === 'title'
+        ? `${data.prefix.toUpperCase()} - ${data.name}`
+        : data.name,
     extension_uid: 'jsonobject_extension',
     field_metadata: { extension: true, description: description || '' },
     uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),
@@ -1204,12 +1419,20 @@ function jsonObject(data) {
 
 // for List view
 function tagEditor(data) {
-  let replaceid, newId;
+  let replaceid, newId, fieldName;
   if (idArray.includes(data.id)) {
+    replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
+    newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
+  } else if (data.id === 'title') {
     replaceid = data.id.replace(data.id, `${data.prefix}_${data.id}`);
     newId = replaceid.replace(/[^a-zA-Z0-9]+/g, '_');
   } else {
     newId = data.id;
+  }
+  if (data.name.toLowerCase() === 'title') {
+    fieldName = `${data.prefix} ${data.name}`;
+  } else {
+    fieldName = data.name;
   }
 
   let regrexValue;
@@ -1227,7 +1450,10 @@ function tagEditor(data) {
   }
 
   return {
-    display_name: data.name,
+    display_name:
+      data.name.toLowerCase() === 'title'
+        ? `${data.prefix.toUpperCase()} - ${data.name}`
+        : data.name,
     extension_uid: 'listview_extension',
     field_metadata: { extension: true, description: description || '' },
     uid: newId.replace(/([A-Z])/g, (match) => `_${match.toLowerCase()}`),

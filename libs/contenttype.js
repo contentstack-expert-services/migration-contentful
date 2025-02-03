@@ -1,16 +1,16 @@
 'use strict';
+
 /**
  * External module Dependencies.
  */
-
 var mkdirp = require('mkdirp'),
   path = require('path'),
   fs = require('fs'),
   when = require('when');
+
 /**
  * Internal module Dependencies .
  */
-
 var helper = require('../utils/helper.js');
 
 var contentstackFolderPath = path.resolve(config.data, config.contenttypes);
@@ -58,8 +58,6 @@ ExtractContent.prototype = {
   saveContentType: async function () {
     var self = this;
     try {
-      let contentTypeSchema = [];
-
       let files = await when.promise((resolve, reject) => {
         fs.readdir(
           path.resolve(
@@ -75,6 +73,7 @@ ExtractContent.prototype = {
           }
         );
       });
+
       for (const file of files) {
         let data = helper.readFile(
           path.resolve(
@@ -91,49 +90,53 @@ ExtractContent.prototype = {
             )
           );
 
-          let titleArray = data.map((item) => item.id);
+          // Check the conditions and create the schema array
+          let existingSchema = contentTypeMapper(data); // Get processed fields from contentTypeMapper
 
-          contentTypeMapper(data);
+          // Ensure "title" is always first
+          let titleField = {
+            display_name: 'Title',
+            uid: 'title',
+            data_type: 'text',
+            field_metadata: { _default: true, version: 1 },
+            unique: true,
+            mandatory: true,
+            multiple: false,
+            non_localizable: false,
+          };
+
+          // Ensure "url" is always second
+          let urlField = {
+            display_name: 'URL',
+            uid: 'url',
+            data_type: 'text',
+            field_metadata: { _default: true, version: 1 },
+            unique: false,
+            multiple: false,
+            mandatory: false,
+            non_localizable: false,
+          };
+
+          // Remove any existing "title" or "url" fields to avoid duplicates
+          existingSchema = existingSchema.filter(
+            (field) => field.uid !== 'title' && field.uid !== 'url'
+          );
+
+          // Construct the final schema with "title" and "url" in the correct order
+          let schema = [titleField, urlField, ...existingSchema];
+
           let title = file.split('.')[0];
-          const uidTitle = [],
-            uidUrl = [];
-          if (!titleArray.includes('title')) {
-            uidTitle.push({
-              display_name: title,
-              uid: 'title',
-              data_type: 'text',
-              field_metadata: { _default: true, version: 1 },
-              unique: false,
-              mandatory: true,
-              multiple: false,
-              non_localizable: false,
-            });
-          }
-          if (!titleArray.includes('url')) {
-            uidUrl.push({
-              display_name: 'URL',
-              uid: 'url',
-              data_type: 'text',
-              field_metadata: { _default: true, version: 1 },
-              unique: false,
-              multiple: false,
-              mandatory: false,
-              non_localizable: false,
-            });
-          }
-
           let description = uid?.contentDescription || '';
           if (description.length > 255) {
             description = description.slice(0, 255);
           }
+
           var contentData = {
             title: title.charAt(0).toUpperCase() + title.slice(1),
             uid: uid.contentUid.replace(/([A-Z])/g, '_$1').toLowerCase(),
             _version: 1,
             inbuilt_class: false,
-            schema: [...uidTitle, ...uidUrl, ...contentTypeMapper(data)].filter(
-              (el) => el !== null
-            ),
+            schema: schema,
             description: description,
             options: {
               is_page: true,
@@ -155,8 +158,10 @@ ExtractContent.prototype = {
             },
           };
 
-          // to create schema.json we are using this function
+          // Save schema to schema.json
           addUniqueSchema(contentData);
+
+          // Save content data to its respective file
           helper.writeFile(
             path.join(
               contentstackFolderPath,
@@ -186,4 +191,5 @@ ExtractContent.prototype = {
     });
   },
 };
+
 module.exports = ExtractContent;

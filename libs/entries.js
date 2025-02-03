@@ -204,6 +204,46 @@ ExtractEntries.prototype = {
             }
 
             // Process the fields
+            // result = entry.reduce(
+            //   (
+            //     entry_data,
+            //     {
+            //       sys: {
+            //         id,
+            //         contentType: {
+            //           sys: { id: name },
+            //         },
+            //       },
+            //       fields,
+            //     }
+            //   ) => {
+            //     entry_data[name] ??= {};
+            //     let newId;
+            //     Object.entries(fields).forEach(([key, value]) => {
+            //       Object.entries(value).forEach(([lang, lang_value]) => {
+            //         entry_data[name][lang] ??= {};
+            //         entry_data[name][lang][id] ??= {};
+            //         // to replace the contentstack restricted key words with user prefix
+            //         if (idArray.includes(key)) {
+            //           newId = `${prefix}_${key}`.replace(/[^a-zA-Z0-9]+/g, '_');
+            //         } else {
+            //           newId = key;
+            //         }
+
+            //         console.log(newId, typeof lang_value);
+            //         // entry_data[name][lang][id][newId] = processField(
+            //         //   lang_value,
+            //         //   entryId,
+            //         //   assetId,
+            //         //   lang
+            //         // );
+            //       });
+            //     });
+            //     return entry_data;
+            //   },
+            //   {}
+            // );
+
             result = entry.reduce(
               (
                 entry_data,
@@ -223,12 +263,23 @@ ExtractEntries.prototype = {
                   Object.entries(value).forEach(([lang, lang_value]) => {
                     entry_data[name][lang] ??= {};
                     entry_data[name][lang][id] ??= {};
-                    // to replace the contentstack restricted key words with user prefix
+
+                    // Check for restricted keywords and replace with prefix
                     if (idArray.includes(key)) {
                       newId = `${prefix}_${key}`.replace(/[^a-zA-Z0-9]+/g, '_');
                     } else {
                       newId = key;
                     }
+
+                    // Additional logic for "title" key
+                    if (newId === 'title' && typeof lang_value === 'object') {
+                      newId = `${prefix}_${newId}`.replace(
+                        /[^a-zA-Z0-9]+/g,
+                        '_'
+                      );
+                    }
+
+                    // Uncomment the below line if you want to process and assign values
                     entry_data[name][lang][id][newId] = processField(
                       lang_value,
                       entryId,

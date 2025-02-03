@@ -8,6 +8,7 @@ const Messages = require('./utils/message');
 const messages = new Messages('contenful').msgs;
 
 const cliUpdate = require('./utils/cli_convert');
+const handleDuplicateTitle = require('./libs/handleDuplicateTitle');
 
 config = require('./config');
 global.errorLogger = require('./utils/logger')('error').error;
@@ -79,6 +80,10 @@ const migFunction = () => {
           console.log(
             chalk.green('\nContenful Data exporting has been completed')
           );
+
+          /* This function is called to handle duplicate titles if present inside the Contentful entries
+          sconverting the data into Contentstack suppport format */
+          handleDuplicateTitle();
 
           setTimeout(async () => {
             // to convert contentful data to support cli
