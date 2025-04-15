@@ -8,7 +8,6 @@ const Messages = require('./utils/message');
 const messages = new Messages('contenful').msgs;
 
 const cliUpdate = require('./utils/cli_convert');
-const handleDuplicateTitle = require('./libs/handleDuplicateTitle');
 
 config = require('./config');
 global.errorLogger = require('./utils/logger')('error').error;
@@ -16,22 +15,22 @@ global.successLogger = require('./utils/logger')('success').log;
 global.warnLogger = require('./utils/logger')('warn').log;
 
 var moduleList = [
-  'locale',
-  'displayEntries',
-  'rteReference',
-  'reference',
-  'extensions',
-  'language',
-  'webhooks',
-  'contentful',
-  'createEntries',
-  'environments',
-  'folders',
-  'assets',
-  'globalfields',
-  'contenttype',
-  'entries',
-  'contentfulLogs',
+  // 'locale',
+  // 'displayEntries',
+  // 'rteReference',
+  // 'reference',
+  // 'extensions',
+  // 'language',
+  // 'webhooks',
+  // 'contentful',
+  // 'createEntries',
+  // 'environments',
+  // 'folders',
+  // 'assets',
+  // 'globalfields',
+  // 'contenttype',
+  // 'entries',
+  // 'contentfulLogs',
 ];
 var _export = [];
 
@@ -81,20 +80,23 @@ const migFunction = () => {
             chalk.green('\nContenful Data exporting has been completed')
           );
 
-          /* This function is called to handle duplicate titles if present inside the Contentful entries
-          sconverting the data into Contentstack suppport format */
-          handleDuplicateTitle();
+          try {
+            const handleDuplicateTitle = require('./libs/handleDuplicateTitle');
+            await handleDuplicateTitle(); // Add await here
 
-          setTimeout(async () => {
-            // to convert contentful data to support cli
-            await cliUpdate();
-            console.log(
-              `See Logs folder for changed UIDs here`,
-              chalk.yellow(`${path.join(process.cwd(), 'logs')}\n`)
-            );
-            // Terminate the process after the timeout
-            process.exit(0);
-          }, 10000);
+            setTimeout(async () => {
+              await cliUpdate();
+              console.log(
+                `See Logs folder for changed UIDs here`,
+                chalk.yellow(`${path.join(process.cwd(), 'logs')}\n`)
+              );
+
+              process.exit(0);
+            }, 10000);
+          } catch (error) {
+            console.error('Error handling duplicate titles:', error);
+            errorLogger(error);
+          }
         })
         .catch(function (error) {
           console.log('thrown inside catch block', error);

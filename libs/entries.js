@@ -9,6 +9,8 @@ var mkdirp = require('mkdirp'),
   when = require('when'),
   jsonpath = require('jsonpath');
 
+const config = require('../config');
+
 const cliProgress = require('cli-progress');
 const colors = require('ansi-colors');
 const chalk = require('chalk');
@@ -43,105 +45,95 @@ const createFilePath = (entryData, localeId) => {
 };
 
 const processField = (lang_value, entryId, assetId, lang) => {
-  if (typeof lang_value !== 'object') {
-    if (typeof lang_value === 'number') {
-      return lang_value;
-    } else {
-      const myJSON = JSON.stringify(lang_value);
-      const withoutEmptyBrac = myJSON
-        .replace('__,', '**')
-        .replace('##', '#')
-        .replace('###', '#');
-      const myObj = JSON.parse(withoutEmptyBrac);
+  // Handle non-object values
+  if (typeof lang_value !== 'object' || lang_value === null) {
+    return lang_value;
+  }
 
-      return myObj;
+  // Handle location fields
+  if (lang_value.lat && lang_value.lon) {
+    return lang_value;
+  }
+
+  // Handle single references (Entry or Asset)
+  if (lang_value.sys && lang_value.sys.type === 'Link') {
+    const id = lang_value.sys.id;
+
+    // Handle Entry references - return as array with one object
+    if (lang_value.sys.linkType === 'Entry') {
+      // Debug logging
+      console.log(`Processing single entry reference: ${id}`);
+      console.log(`Entry exists in entryId: ${id in entryId}`);
+
+      return [
+        {
+          uid: id,
+          _content_type_uid: entryId[id]?._content_type_uid || 'topic_person',
+        },
+      ];
     }
-  } else {
-    // to set the values for location lat & lon
-    if (lang_value.lat) {
-      return lang_value;
-    } else {
-      // to check if the values contain the entry fields or not
-      if (lang_value.sys) {
-        if (lang_value.sys.linkType === 'Entry') {
-          // to check if the id present in entry field or not for single entry
-          if (lang_value.sys.id in entryId) {
-            return [entryId[lang_value.sys.id]];
-          }
-        }
-        // to check if the id present in asset field or not for single asset
-        if (lang_value.sys.linkType === 'Asset') {
-          if (lang_value.sys.id in assetId) {
-            return assetId[lang_value.sys.id];
-          }
-        }
-      } else {
-        for (const d of Object.values(lang_value)) {
-          // to check the instance is object or not
-          if (d instanceof Object) {
-            const myJSON = JSON.stringify(lang_value);
-            if (Array.isArray(lang_value)) {
-              lang_value.forEach((sys) => {
-                if (typeof sys !== 'object') {
-                  return lang_value;
-                }
-              });
-              let ids = jsonpath.query(lang_value, '$..id');
-              ids.forEach((id, i) => {
-                if (id in entryId) {
-                  lang_value.splice(i, 1, entryId[id]);
-                } else {
-                  for (const sys of lang_value) {
-                    if (sys.sys !== undefined) {
-                      if (sys.sys.linkType === 'Entry') {
-                        delete sys.sys;
-                      }
-                    }
-                  }
-                }
-                if (id in assetId) {
-                  lang_value.splice(i, 1, assetId[id]);
-                } else {
-                  for (const sys of lang_value) {
-                    if (sys.sys !== undefined) {
-                      if (sys.sys.linkType === 'Asset') {
-                        delete sys.sys;
-                      }
-                    }
-                  }
-                }
-              });
 
-              // remove the values from empty curly braces from the delete entries and asset
-              const withoutEmptyBrac = myJSON
-                .replace(/{},/g, '')
-                .replace(/,{}/g, '')
-                .replace(/,{},/g, '')
-                .replace(/{}/g, '');
-              const myObj = JSON.parse(withoutEmptyBrac);
-              if (myObj.length > 0) {
-                return myObj;
-              } else {
-                return undefined; // Or handle the delete case as needed
-              }
-            } else {
-              // for the RTE values convert
-              if (lang_value.data) {
-                return jsonRTE(lang_value, lang.toLowerCase());
-              } else {
-                return lang_value;
-              }
-            }
-          } else {
-            // this is added to return the checkbox values
-            if (Array.isArray(lang_value)) {
-              return lang_value;
-            }
-          }
-        }
+    // Handle Asset references - return asset object
+    if (lang_value.sys.linkType === 'Asset') {
+      // Debug logging
+      console.log(`Processing single asset reference: ${id}`);
+      console.log(`Asset exists in assetId: ${id in assetId}`);
+
+      if (id in assetId) {
+        return assetId[id];
       }
     }
   }
+
+  // Handle arrays (for multiple references)
+  if (Array.isArray(lang_value)) {
+    // Debug logging
+    console.log(`Processing array with ${lang_value.length} items`);
+
+    // Transform each item in the array
+    const result = lang_value
+      .map((item) => {
+        if (item?.sys?.type === 'Link') {
+          const id = item.sys.id;
+
+          if (item.sys.linkType === 'Entry') {
+            console.log(`Processing array entry reference: ${id}`);
+            return {
+              uid: id,
+              _content_type_uid:
+                entryId[id]?._content_type_uid || 'topic_person',
+            };
+          }
+
+          if (item.sys.linkType === 'Asset' && id in assetId) {
+            console.log(`Processing array asset reference: ${id}`);
+            return assetId[id];
+          }
+        }
+
+        // If not a reference, process recursively
+        return processField(item, entryId, assetId, lang);
+      })
+      .filter(Boolean); // Remove any null/undefined entries
+
+    return result.length > 0 ? result : undefined;
+  }
+
+  // Handle RTE fields
+  if (lang_value.data) {
+    return jsonRTE(lang_value, lang.toLowerCase());
+  }
+
+  // Handle other objects by recursively processing each property
+  const result = {};
+  for (const [key, value] of Object.entries(lang_value)) {
+    const processed = processField(value, entryId, assetId, lang);
+    if (processed !== undefined) {
+      result[key] = processed;
+    }
+  }
+
+  return Object.keys(result).length > 0 ? result : lang_value;
 };
 
 ExtractEntries.prototype = {
@@ -166,205 +158,180 @@ ExtractEntries.prototype = {
     var self = this;
     return when.promise(async function (resolve, reject) {
       try {
+        // Add debug logging
+
         self.customBar.start(entry.length, 0, {
           title: 'Migrating Entries      ',
         });
-        let assetId = helper.readFile(
-          path.join(process.cwd(), config.data, 'assets', 'assets.json')
-        );
 
-        let entryId = helper.readFile(
-          path.join(process.cwd(), config.data, 'references', 'reference.json')
-        );
-        let localeId = helper.readFile(
-          path.join(process.cwd(), config.data, 'locales', 'language.json')
-        );
+        // Pre-load all required data at once
+        const [assetId, entryId, environmentsId, dispalyField] =
+          await Promise.all([
+            helper.readFile(
+              path.join(process.cwd(), config.data, 'assets', 'assets.json')
+            ),
+            helper.readFile(
+              path.join(
+                process.cwd(),
+                config.data,
+                'references',
+                'reference.json'
+              )
+            ),
+            helper.readFile(
+              path.join(
+                process.cwd(),
+                config.data,
+                'environments',
+                'environments.json'
+              )
+            ),
+            helper.readFile(
+              path.join(
+                config.data,
+                `${config.contentful.displayEntries.dirname}/${config.contentful.displayEntries.filename}`
+              )
+            ),
+          ]);
 
-        let environmentsId = helper.readFile(
-          path.join(
-            process.cwd(),
-            config.data,
-            'environments',
-            'environments.json'
-          )
-        );
+        const results = {};
 
-        let result;
-        // Create an array to hold all the promises for file writing
-        const writePromises = [];
-
-        entry.map((entryData) => {
-          Object.values(localeId).forEach(async (i) => {
-            const filePath = createFilePath(entryData, i);
-            if (!fs.existsSync(filePath)) {
-              // create folder with the content type name
-              mkdirp.sync(path.dirname(filePath));
-              // create JSON file in the created folders with locale name
-              helper.writeFile(filePath);
+        for (const entryData of entry) {
+          try {
+            if (!entryData?.sys?.contentType?.sys?.id) {
+              continue;
             }
 
-            // Process the fields
-            // result = entry.reduce(
-            //   (
-            //     entry_data,
-            //     {
-            //       sys: {
-            //         id,
-            //         contentType: {
-            //           sys: { id: name },
-            //         },
-            //       },
-            //       fields,
-            //     }
-            //   ) => {
-            //     entry_data[name] ??= {};
-            //     let newId;
-            //     Object.entries(fields).forEach(([key, value]) => {
-            //       Object.entries(value).forEach(([lang, lang_value]) => {
-            //         entry_data[name][lang] ??= {};
-            //         entry_data[name][lang][id] ??= {};
-            //         // to replace the contentstack restricted key words with user prefix
-            //         if (idArray.includes(key)) {
-            //           newId = `${prefix}_${key}`.replace(/[^a-zA-Z0-9]+/g, '_');
-            //         } else {
-            //           newId = key;
-            //         }
-
-            //         console.log(newId, typeof lang_value);
-            //         // entry_data[name][lang][id][newId] = processField(
-            //         //   lang_value,
-            //         //   entryId,
-            //         //   assetId,
-            //         //   lang
-            //         // );
-            //       });
-            //     });
-            //     return entry_data;
-            //   },
-            //   {}
-            // );
-
-            result = entry.reduce(
-              (
-                entry_data,
-                {
-                  sys: {
-                    id,
-                    contentType: {
-                      sys: { id: name },
-                    },
-                  },
-                  fields,
-                }
-              ) => {
-                entry_data[name] ??= {};
-                let newId;
-                Object.entries(fields).forEach(([key, value]) => {
-                  Object.entries(value).forEach(([lang, lang_value]) => {
-                    entry_data[name][lang] ??= {};
-                    entry_data[name][lang][id] ??= {};
-
-                    // Check for restricted keywords and replace with prefix
-                    if (idArray.includes(key)) {
-                      newId = `${prefix}_${key}`.replace(/[^a-zA-Z0-9]+/g, '_');
-                    } else {
-                      newId = key;
-                    }
-
-                    // Additional logic for "title" key
-                    if (newId === 'title' && typeof lang_value === 'object') {
-                      newId = `${prefix}_${newId}`.replace(
-                        /[^a-zA-Z0-9]+/g,
-                        '_'
-                      );
-                    }
-
-                    // Uncomment the below line if you want to process and assign values
-                    entry_data[name][lang][id][newId] = processField(
-                      lang_value,
-                      entryId,
-                      assetId,
-                      lang
-                    );
-                  });
-                });
-                return entry_data;
+            const {
+              sys: {
+                id,
+                contentType: {
+                  sys: { id: name },
+                },
               },
-              {}
-            );
+              fields,
+            } = entryData;
 
-            // Write data
-          });
+            if (!results[name]) {
+              results[name] = {};
+            }
 
-          self.customBar.increment();
-        });
+            // Process fields with validation
+            if (fields && typeof fields === 'object') {
+              Object.entries(fields).forEach(([key, value]) => {
+                if (!value) return;
 
-        const dispalyField = helper.readFile(
-          path.join(
-            config.data,
-            `${config.contentful.displayEntries.dirname}/${config.contentful.displayEntries.filename}`
-          )
-        );
+                const newId = idArray.includes(key)
+                  ? `${prefix}_${key}`.replace(/[^a-zA-Z0-9]+/g, '_')
+                  : key === 'title' &&
+                      typeof Object.values(value)[0] === 'object'
+                    ? `${prefix}_${key}`.replace(/[^a-zA-Z0-9]+/g, '_')
+                    : key;
 
-        for (const [key, values] of Object.entries(result)) {
-          const pathName = getDisplayName(key, dispalyField);
-          for (const [localeKey, localeValues] of Object.entries(values)) {
-            const newData = {};
-            const publish_details = Object.values(environmentsId)
-              .filter(
-                (environment) =>
-                  environment?.name === entry[0]?.sys?.environment?.sys?.id
-              )
-              .map((environment) => ({
-                environment: environment?.uid,
-                version: 1,
-                locale: localeKey.toLowerCase(),
-              }));
+                Object.entries(value).forEach(([lang, lang_value]) => {
+                  if (!results[name][lang]) results[name][lang] = {};
+                  if (!results[name][lang][id]) results[name][lang][id] = {};
 
-            for (const lowerKey of Object.keys(localeValues)) {
-              const title = localeValues[lowerKey][pathName] || '';
-              const urlTitle = title
-                .replace(/[^a-zA-Z0-9]+/g, '-')
-                .toLowerCase();
-
-              newData[lowerKey] = {
-                title: title.trim() === '' ? urlTitle || lowerKey : title,
-                uid: lowerKey,
-                url: `/${key.toLowerCase()}/${urlTitle}`,
-                locale: localeKey.toLowerCase(),
-                publish_details: publish_details,
-              };
-
-              Object.entries(localeValues[lowerKey]).forEach(
-                ([innerKey, value]) => {
-                  const formattedKey = innerKey.replace(
-                    /([A-Z])/g,
-                    (match) => `_${match.toLowerCase()}`
+                  const processedValue = processField(
+                    lang_value,
+                    entryId,
+                    assetId,
+                    lang
                   );
-                  newData[lowerKey][formattedKey] = value;
-                }
+                  if (processedValue !== undefined) {
+                    results[name][lang][id][newId] = processedValue;
+                  }
+                });
+              });
+            }
+
+            self.customBar.increment(1);
+          } catch (entryError) {
+            console.error('Error processing entry:', entryError);
+            continue;
+          }
+        }
+
+        // Write files with additional error handling
+        for (const [key, values] of Object.entries(results)) {
+          try {
+            const pathName = getDisplayName(key, dispalyField);
+
+            for (const [localeKey, localeValues] of Object.entries(values)) {
+              const newData = {};
+              const titlesInLocale = new Set(); // Track titles in this locale
+
+              const publish_details = Object.values(environmentsId)
+                .filter(
+                  (env) => env?.name === entry[0]?.sys?.environment?.sys?.id
+                )
+                .map((environment) => ({
+                  environment: environment?.uid,
+                  version: 1,
+                  locale: localeKey.toLowerCase(),
+                }));
+
+              // In the saveEntry function, fix the newData object creation:
+              Object.entries(localeValues).forEach(([lowerKey, values]) => {
+                let title = values[pathName] || '';
+
+                // Handle duplicate titles
+                const uniqueTitle = handleDuplicateTitles(
+                  titlesInLocale,
+                  title,
+                  lowerKey
+                );
+
+                const urlTitle = (values[pathName] || '')
+                  .replace(/[^a-zA-Z0-9]+/g, '-')
+                  .toLowerCase();
+
+                newData[lowerKey] = {
+                  title:
+                    uniqueTitle.trim() === ''
+                      ? urlTitle || lowerKey
+                      : uniqueTitle,
+                  uid: lowerKey,
+                  url: `/${key.toLowerCase()}/${urlTitle}`, // URL remains based on original title
+                  locale: localeKey.toLowerCase(),
+                  publish_details,
+                  ...Object.fromEntries(
+                    Object.entries(values).map(([innerKey, value]) => [
+                      innerKey.replace(
+                        /([A-Z])/g,
+                        (match) => `_${match.toLowerCase()}`
+                      ),
+                      value,
+                    ])
+                  ),
+                };
+              });
+
+              // In the saveEntry function, add this line before using filePath:
+              const filePath = path.join(
+                entryFolderPath,
+                key.replace(/([A-Z])/g, '_$1').toLowerCase(),
+                `${localeKey.toLowerCase()}.json`
+              );
+
+              await mkdirp(path.dirname(filePath));
+              await fileSystem.writeFile(
+                filePath,
+                JSON.stringify(newData, null, 4)
               );
             }
-
-            const filePath = path.join(
-              entryFolderPath,
-              key.replace(/([A-Z])/g, '_$1').toLowerCase(),
-              `${localeKey.toLowerCase()}.json`
-            );
-            // Push the asynchronous file writing operation to the array
-            writePromises.push(
-              fileSystem.writeFile(filePath, JSON.stringify(newData, null, 4))
+          } catch (writeError) {
+            console.error(
+              `Error writing files for content type ${key}:`,
+              writeError
             );
           }
         }
 
-        // Wait for all file writing operations to complete
-        await Promise.all(writePromises);
-
-        resolve(result);
+        resolve(results);
       } catch (error) {
-        console.log(error);
-        reject();
+        console.error('Fatal error in saveEntry:', error);
+        reject(error);
       }
     });
   },
@@ -372,25 +339,25 @@ ExtractEntries.prototype = {
   getAllEntries: function (prefix) {
     var self = this;
     return when.promise(function (resolve, reject) {
-      //for reading json file and store in alldata
-      var alldata = helper.readFile(config.contentful_filename);
+      try {
+        //for reading json file and store in alldata
 
-      // to fetch all the entries from the json output
-      var entries = alldata.entries;
-      if (entries) {
-        if (entries.length > 0) {
-          if (!filePath) {
-            //run to save and excrete the entries
-            self.saveEntry(entries, prefix);
-            resolve();
-          }
+        var alldata = helper.readFile(config.contentful_filename);
+
+        // to fetch all the entries from the json output
+        var entries = alldata?.entries;
+        if (entries?.length > 0) {
+          //run to save and execute the entries
+          self
+            .saveEntry(entries, prefix)
+            .then(() => resolve())
+            .catch(reject);
         } else {
           console.log(chalk.red(`no entries found`));
           resolve();
         }
-      } else {
-        console.log(chalk.red(`no entries found`));
-        resolve();
+      } catch (error) {
+        reject(error);
       }
     });
   },
@@ -428,4 +395,21 @@ function getDisplayName(key, dispalyField) {
     }
   });
   return path;
+}
+
+// Update the handleDuplicateTitles function
+function handleDuplicateTitles(titles, currentTitle, uid) {
+  if (!currentTitle) return currentTitle;
+
+  const titleKey = currentTitle.toLowerCase().trim();
+
+  if (titles.has(titleKey)) {
+    // Add uid suffix to create unique title
+    const uniqueTitle = `${currentTitle} - ${uid}`;
+    titles.add(titleKey); // Add to set to track
+    return uniqueTitle;
+  }
+
+  titles.add(titleKey);
+  return currentTitle;
 }

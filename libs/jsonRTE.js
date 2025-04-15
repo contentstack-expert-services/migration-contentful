@@ -1,6 +1,7 @@
 var helper = require('../utils/helper.js');
 var path = require('path');
 const _ = require('lodash');
+const config = require('../config');
 
 const parsers = new Map([
   ['document', parseDocument],
@@ -146,7 +147,17 @@ function parseTableHead(obj) {
   let attrs = {};
   let uid = 'th' + Math.floor(Math.random() * 100000000000000);
   let children = [];
-  obj.content.forEach((e) => children.push(parsers.get(e.nodeType)(e)));
+
+  obj.content.forEach((e) => {
+    if (e.nodeType === 'paragraph' && e.content) {
+      const parsed = parsers.get(e.nodeType)(e);
+      children.push(...parsed.children);
+    } else {
+      const parsed = parsers.get(e.nodeType)(e);
+      children.push(parsed);
+    }
+  });
+
   return {
     type,
     attrs,
@@ -194,14 +205,25 @@ function parseTableBody(obj) {
   let attrs = {};
   let uid = 'td' + Math.floor(Math.random() * 100000000000000);
   let children = [];
-  obj.content.forEach((e) => children.push(parsers.get(e.nodeType)(e)));
-  if (children.length > 0)
+
+  obj.content.forEach((e) => {
+    if (e.nodeType === 'paragraph' && e.content) {
+      const parsed = parsers.get(e.nodeType)(e);
+      children.push(...parsed.children);
+    } else {
+      const parsed = parsers.get(e.nodeType)(e);
+      children.push(parsed);
+    }
+  });
+
+  if (children.length > 0) {
     return {
       type,
       attrs,
       uid,
       children: children.filter((e) => !(e === null || e === undefined)),
     };
+  }
 }
 
 function parseParagraph(obj, lang) {
@@ -244,14 +266,24 @@ function parseHR() {
   };
 }
 
-function parseUL(obj) {
+function parseUL(obj, lang) {
+  // Add lang parameter
   let type = 'ul';
   let uid = 'ul' + Math.floor(Math.random() * 100000000000000);
   let attrs = {};
   let children = [];
   let id = 'ul' + Math.floor(Math.random() * 100000000000000);
 
-  obj.content.forEach((e) => children.push(parsers.get(e.nodeType)(e)));
+  obj.content.forEach((e) => {
+    if (e.nodeType === 'paragraph' && e.content) {
+      const parsed = parsers.get(e.nodeType)(e, lang); // Pass lang
+      children.push(...parsed.children);
+    } else {
+      const parsed = parsers.get(e.nodeType)(e, lang); // Pass lang
+      children.push(parsed);
+    }
+  });
+
   return {
     uid,
     type,
@@ -261,14 +293,24 @@ function parseUL(obj) {
   };
 }
 
-function parseOL(obj) {
+function parseOL(obj, lang) {
+  // Add lang parameter
   let type = 'ol';
   let uid = 'ol' + Math.floor(Math.random() * 100000000000000);
   let attrs = {};
   let children = [];
   let id = 'ul' + Math.floor(Math.random() * 100000000000000);
 
-  obj.content.forEach((e) => children.push(parsers.get(e.nodeType)(e)));
+  obj.content.forEach((e) => {
+    if (e.nodeType === 'paragraph' && e.content) {
+      const parsed = parsers.get(e.nodeType)(e, lang); // Pass lang
+      children.push(...parsed.children);
+    } else {
+      const parsed = parsers.get(e.nodeType)(e, lang); // Pass lang
+      children.push(parsed);
+    }
+  });
+
   return {
     uid,
     type,
@@ -278,15 +320,24 @@ function parseOL(obj) {
   };
 }
 
-function parseLI(obj) {
+function parseLI(obj, lang) {
+  // Add lang parameter here
   let type = 'li';
   let uid = 'li' + Math.floor(Math.random() * 100000000000000);
   let attrs = {};
   let children = [];
 
-  obj.content.forEach((e) => children.push(parsers.get(e.nodeType)(e)));
-  // get rid of paragraph elements
-  children = children.map((c) => c.children).flat();
+  obj.content.forEach((e) => {
+    // Check if the content is a paragraph with nested elements
+    if (e.nodeType === 'paragraph' && e.content) {
+      const parsedParagraph = parsers.get(e.nodeType)(e, lang); // Pass lang
+      children.push(...parsedParagraph.children);
+    } else {
+      // Handle other node types directly
+      const parsed = parsers.get(e.nodeType)(e, lang); // Pass lang
+      children.push(parsed);
+    }
+  });
 
   return {
     type,
@@ -428,8 +479,16 @@ function parseBlockquote(obj) {
   let uid = 'blockquote' + Math.floor(Math.random() * 100000000000000);
   let attrs = {};
   let children = [];
-  obj.content.forEach((e) => children.push(parsers.get(e.nodeType)(e)));
-  children = children.map((c) => c.children).flat();
+
+  obj.content.forEach((e) => {
+    if (e.nodeType === 'paragraph' && e.content) {
+      const parsed = parsers.get(e.nodeType)(e);
+      children.push(...parsed.children);
+    } else {
+      const parsed = parsers.get(e.nodeType)(e);
+      children.push(parsed);
+    }
+  });
 
   return {
     type,
@@ -445,12 +504,16 @@ function parseHeading1(obj) {
   let attrs = {};
   let children = [];
 
-  obj.content.forEach((e) => children.push(parsers.get(e.nodeType)(e)));
-  children = children
-    .map((c) => {
-      return c;
-    })
-    .flat();
+  obj.content.forEach((e) => {
+    if (e.nodeType === 'paragraph' && e.content) {
+      const parsed = parsers.get(e.nodeType)(e);
+      children.push(...parsed.children);
+    } else {
+      const parsed = parsers.get(e.nodeType)(e);
+      children.push(parsed);
+    }
+  });
+
   return {
     type,
     attrs,
@@ -464,12 +527,17 @@ function parseHeading2(obj) {
   let uid = 'h2' + Math.floor(Math.random() * 100000000000000);
   let attrs = {};
   let children = [];
-  obj.content.forEach((e) => children.push(parsers.get(e.nodeType)(e)));
-  children = children
-    .map((c) => {
-      return c;
-    })
-    .flat();
+
+  obj.content.forEach((e) => {
+    if (e.nodeType === 'paragraph' && e.content) {
+      const parsed = parsers.get(e.nodeType)(e);
+      children.push(...parsed.children);
+    } else {
+      const parsed = parsers.get(e.nodeType)(e);
+      children.push(parsed);
+    }
+  });
+
   return {
     type,
     attrs,
@@ -483,12 +551,17 @@ function parseHeading3(obj) {
   let uid = 'h3' + Math.floor(Math.random() * 100000000000000);
   let attrs = {};
   let children = [];
-  obj.content.forEach((e) => children.push(parsers.get(e.nodeType)(e)));
-  children = children
-    .map((c) => {
-      return c;
-    })
-    .flat();
+
+  obj.content.forEach((e) => {
+    if (e.nodeType === 'paragraph' && e.content) {
+      const parsed = parsers.get(e.nodeType)(e);
+      children.push(...parsed.children);
+    } else {
+      const parsed = parsers.get(e.nodeType)(e);
+      children.push(parsed);
+    }
+  });
+
   return {
     type,
     attrs,
@@ -502,12 +575,17 @@ function parseHeading4(obj) {
   let uid = 'h4' + Math.floor(Math.random() * 100000000000000);
   let attrs = {};
   let children = [];
-  obj.content.forEach((e) => children.push(parsers.get(e.nodeType)(e)));
-  children = children
-    .map((c) => {
-      return c;
-    })
-    .flat();
+
+  obj.content.forEach((e) => {
+    if (e.nodeType === 'paragraph' && e.content) {
+      const parsed = parsers.get(e.nodeType)(e);
+      children.push(...parsed.children);
+    } else {
+      const parsed = parsers.get(e.nodeType)(e);
+      children.push(parsed);
+    }
+  });
+
   return {
     type,
     attrs,
@@ -540,12 +618,17 @@ function parseHeading6(obj) {
   let uid = 'h6' + Math.floor(Math.random() * 100000000000000);
   let attrs = {};
   let children = [];
-  obj.content.forEach((e) => children.push(parsers.get(e.nodeType)(e)));
-  children = children
-    .map((c) => {
-      return c;
-    })
-    .flat();
+
+  obj.content.forEach((e) => {
+    if (e.nodeType === 'paragraph' && e.content) {
+      const parsed = parsers.get(e.nodeType)(e);
+      children.push(...parsed.children);
+    } else {
+      const parsed = parsers.get(e.nodeType)(e);
+      children.push(parsed);
+    }
+  });
+
   return {
     type,
     attrs,

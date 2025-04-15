@@ -10,3 +10,5 @@ contentful.json
 .DS_Store
 dummy*
 contentfulData.json
+.qodo
+*copy*
