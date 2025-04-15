@@ -15,22 +15,22 @@ global.successLogger = require('./utils/logger')('success').log;
 global.warnLogger = require('./utils/logger')('warn').log;
 
 var moduleList = [
-  // 'locale',
-  // 'displayEntries',
-  // 'rteReference',
-  // 'reference',
-  // 'extensions',
-  // 'language',
-  // 'webhooks',
-  // 'contentful',
-  // 'createEntries',
-  // 'environments',
-  // 'folders',
-  // 'assets',
-  // 'globalfields',
-  // 'contenttype',
-  // 'entries',
-  // 'contentfulLogs',
+  'locale',
+  'displayEntries',
+  'rteReference',
+  'reference',
+  'extensions',
+  'language',
+  'webhooks',
+  'contentful',
+  'createEntries',
+  'environments',
+  'folders',
+  'assets',
+  'globalfields',
+  'contenttype',
+  'entries',
+  'contentfulLogs',
 ];
 var _export = [];
 
