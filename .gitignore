@@ -1,4 +1,4 @@
-contentfulMigrationData*
+
 node_modules
 logs
 package-lock.json
@@ -6,9 +6,15 @@ package-lock.json
 wipro*
 _backup_*
 contenfulData*
+.DS_Store
+.qodo
+dummy*
 contentful.json
 .DS_Store
 dummy*
 contentfulData.json
 .qodo
 *copy*
+# Snyk Security Extension - AI Rules (auto-generated)
+.cursor/rules/snyk_rules.mdc
+*MigrationData*

@@ -12,6 +12,7 @@ var mkdirp = require('mkdirp'),
  */
 
 var helper = require('../utils/helper');
+const chalk = require('chalk');
 
 var entryFolderPath = path.resolve(config.data, config.entryfolder);
 
@@ -24,101 +25,67 @@ function ExtractEntries() {}
 ExtractEntries.prototype = {
   saveEntry: function (entry, prefix) {
     var self = this;
-    return when.promise(function (resolve, reject) {
+    return when.promise(async function (resolve, reject) {
       try {
         let localeId = helper.readFile(
           path.join(process.cwd(), config.data, 'locales', 'language.json')
         );
-        entry.map((entryData) => {
-          Object.values(localeId).forEach(async (i) => {
-            //check if file exist or not
-            if (
-              !fs.existsSync(
-                path.join(
-                  entryFolderPath,
-                  entryData.sys.contentType.sys.id
-                    .replace(/([A-Z])/g, '_$1')
-                    .toLowerCase()
-                )
-              )
-            ) {
-              // create folder with the content type name
-              mkdirp.sync(
-                path.join(
-                  entryFolderPath,
-                  entryData.sys.contentType.sys.id
-                    .replace(/([A-Z])/g, '_$1')
-                    .toLowerCase()
-                )
-              );
-              // create JSON file in the created folders with locale name
-              helper.writeFile(
-                path.join(
-                  entryFolderPath,
-                  entryData.sys.contentType.sys.id
-                    .replace(/([A-Z])/g, '_$1')
-                    .toLowerCase(),
-                  `${i.code}.json`
-                )
-              );
-            } else {
-              mkdirp.sync(
-                path.join(
-                  entryFolderPath,
-                  entryData.sys.contentType.sys.id
-                    .replace(/([A-Z])/g, '_$1')
-                    .toLowerCase()
-                )
-              );
-              // create JSON file in the created folders with locale name
-              helper.writeFile(
-                path.join(
-                  entryFolderPath,
-                  entryData.sys.contentType.sys.id
-                    .replace(/([A-Z])/g, '_$1')
-                    .toLowerCase(),
-                  `${i.code}.json`
-                )
-              );
+        
+        // Use Promise.all to handle async operations properly
+        await Promise.all(entry.map(async (entryData) => {
+          await Promise.all(Object.values(localeId).map(async (i) => {
+            const contentTypePath = path.join(
+              entryFolderPath,
+              entryData.sys.contentType.sys.id
+                .replace(/([A-Z])/g, '_$1')
+                .toLowerCase()
+            );
+
+            if (!fs.existsSync(contentTypePath)) {
+              mkdirp.sync(contentTypePath);
             }
-          });
-        });
+
+            // create JSON file in the created folders with locale name
+            helper.writeFile(
+              path.join(contentTypePath, `${i.code}.json`)
+            );
+          }));
+        }));
+        
         resolve();
       } catch (error) {
-        console.log(error);
-        reject();
+        console.error('Error in saveEntry:', error);
+        reject(error);
       }
     });
   },
   getAllEntries: function (prefix) {
     var self = this;
-    return when.promise(function (resolve, reject) {
-      //for reading json file and store in alldata
-      var alldata = helper.readFile(config.contentful_filename);
+    return when.promise(async function (resolve, reject) {
+      try {
+        //for reading json file and store in alldata
+        var alldata = helper.readFile(config.contentful_filename);
 
-      // to fetch all the entries from the json output
-      var entries = alldata.entries;
-      if (entries) {
-        if (entries.length > 0) {
-          if (!filePath) {
-            //run to save and excrete the entries
-            self.saveEntry(entries, prefix);
-            resolve();
-          }
+        // to fetch all the entries from the json output
+        var entries = alldata.entries;
+        if (entries && entries.length > 0) {
+          //run to save and extract the entries
+          await self.saveEntry(entries, prefix);
+          resolve();
         } else {
           console.log(chalk.red(`no entries found`));
           resolve();
         }
-      } else {
-        console.log(chalk.red(`no entries found`));
-        resolve();
+      } catch (error) {
+        console.error('Error in getAllEntries:', error);
+        reject(error);
       }
     });
   },
 
   start: function (prefix) {
     var self = this;
-    return when.promise(function (resolve, reject) {
+    return when.promise(async function (resolve, reject) {
       self
         .getAllEntries(prefix)
         .then(function () {

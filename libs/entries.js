@@ -45,37 +45,36 @@ const createFilePath = (entryData, localeId) => {
 };
 
 const processField = (lang_value, entryId, assetId, lang) => {
-  // Handle non-object values
+  // Handle primitive types directly
   if (typeof lang_value !== 'object' || lang_value === null) {
     return lang_value;
   }
 
-  // Handle location fields
+  // Handle location data
   if (lang_value.lat && lang_value.lon) {
     return lang_value;
   }
 
-  // Handle single references (Entry or Asset)
+  // Handle system links (Entry or Asset)
   if (lang_value.sys && lang_value.sys.type === 'Link') {
-    const id = lang_value.sys.id;
+    const { linkType, id } = lang_value.sys;
 
     // Handle Entry references - return as array with one object
-    if (lang_value.sys.linkType === 'Entry') {
-      // Debug logging
+    if (linkType === 'Entry') {
       console.log(`Processing single entry reference: ${id}`);
       console.log(`Entry exists in entryId: ${id in entryId}`);
 
-      return [
-        {
+      if (id in entryId) {
+        return [entryId[id]];
+      }
+      return [{
           uid: id,
           _content_type_uid: entryId[id]?._content_type_uid || 'topic_person',
-        },
-      ];
+      }];
     }
 
     // Handle Asset references - return asset object
-    if (lang_value.sys.linkType === 'Asset') {
-      // Debug logging
+    if (linkType === 'Asset') {
       console.log(`Processing single asset reference: ${id}`);
       console.log(`Asset exists in assetId: ${id in assetId}`);
 
@@ -83,62 +82,76 @@ const processField = (lang_value, entryId, assetId, lang) => {
         return assetId[id];
       }
     }
+    return undefined;
   }
 
-  // Handle arrays (for multiple references)
+  // Handle arrays
   if (Array.isArray(lang_value)) {
-    // Debug logging
-    console.log(`Processing array with ${lang_value.length} items`);
+    // Handle primitive arrays directly
+    if (lang_value.every((item) => typeof item !== 'object')) {
+      return lang_value;
+    }
 
-    // Transform each item in the array
-    const result = lang_value
-      .map((item) => {
-        if (item?.sys?.type === 'Link') {
-          const id = item.sys.id;
-
-          if (item.sys.linkType === 'Entry') {
-            console.log(`Processing array entry reference: ${id}`);
-            return {
-              uid: id,
-              _content_type_uid:
-                entryId[id]?._content_type_uid || 'topic_person',
-            };
-          }
-
-          if (item.sys.linkType === 'Asset' && id in assetId) {
-            console.log(`Processing array asset reference: ${id}`);
-            return assetId[id];
-          }
+    // Process array of references
+    const processedArray = lang_value.reduce((acc, item) => {
+      if (item?.sys?.id) {
+        const { linkType, id } = item.sys;
+        if (linkType === 'Entry' && id in entryId) {
+          acc.push(entryId[id]);
+        } else if (linkType === 'Asset' && id in assetId) {
+          acc.push(assetId[id]);
         }
+      } else if (item !== null && typeof item === 'object') {
+        const processed = processField(item, entryId, assetId, lang);
+        if (processed !== undefined) {
+          acc.push(processed);
+        }
+      } else {
+        acc.push(item);
+      }
+      return acc;
+    }, []);
 
-        // If not a reference, process recursively
-        return processField(item, entryId, assetId, lang);
-      })
-      .filter(Boolean); // Remove any null/undefined entries
-
-    return result.length > 0 ? result : undefined;
+    return processedArray.length > 0 ? processedArray : undefined;
   }
 
-  // Handle RTE fields
+  // Handle RTE data
   if (lang_value.data) {
     return jsonRTE(lang_value, lang.toLowerCase());
   }
 
-  // Handle other objects by recursively processing each property
-  const result = {};
+  // Handle nested objects
+  const processedObj = {};
+  let hasValues = false;
+
   for (const [key, value] of Object.entries(lang_value)) {
     const processed = processField(value, entryId, assetId, lang);
     if (processed !== undefined) {
-      result[key] = processed;
+      processedObj[key] = processed;
+      hasValues = true;
     }
   }
 
-  return Object.keys(result).length > 0 ? result : lang_value;
+  return hasValues ? processedObj : undefined;
 };
+
+// Helper function to handle duplicate titles
+function handleDuplicateTitles(titlesInLocale, title, lowerKey) {
+  let uniqueTitle = title;
+  let counter = 1;
+  
+  while (titlesInLocale.has(uniqueTitle)) {
+    uniqueTitle = `${title} ${counter}`;
+    counter++;
+  }
+  
+  titlesInLocale.add(uniqueTitle);
+  return uniqueTitle;
+}
 
 ExtractEntries.prototype = {
   customBar: null,
-  initalizeLoader: function () {
+  initalizeLoader() {
     this.customBar = new cliProgress.SingleBar({
       format:
         '{title}|' +
@@ -149,12 +162,12 @@ ExtractEntries.prototype = {
       hideCursor: true,
     });
   },
-  destroyLoader: function () {
+  destroyLoader() {
     if (this.customBar) {
       this.customBar.stop();
     }
   },
-  saveEntry: function (entry, prefix) {
+  saveEntry(entry, prefix) {
     var self = this;
     return when.promise(async function (resolve, reject) {
       try {
@@ -165,7 +178,7 @@ ExtractEntries.prototype = {
         });
 
         // Pre-load all required data at once
-        const [assetId, entryId, environmentsId, dispalyField] =
+        const [assetId, entryId, localeId, environmentsId, dispalyField] =
           await Promise.all([
             helper.readFile(
               path.join(process.cwd(), config.data, 'assets', 'assets.json')
@@ -177,6 +190,9 @@ ExtractEntries.prototype = {
                 'references',
                 'reference.json'
               )
+            ),
+            helper.readFile(
+              path.join(process.cwd(), config.data, 'locales', 'language.json')
             ),
             helper.readFile(
               path.join(
@@ -330,33 +346,33 @@ ExtractEntries.prototype = {
 
         resolve(results);
       } catch (error) {
-        console.error('Fatal error in saveEntry:', error);
+        console.error('Error in saveEntry:', error);
         reject(error);
       }
     });
   },
 
-  getAllEntries: function (prefix) {
+  getAllEntries(prefix) {
     var self = this;
-    return when.promise(function (resolve, reject) {
+    return when.promise(async function (resolve, reject) {
       try {
-        //for reading json file and store in alldata
-
+        // Read JSON file and store in alldata
         var alldata = helper.readFile(config.contentful_filename);
 
-        // to fetch all the entries from the json output
+        // Fetch all entries from the JSON output
         var entries = alldata?.entries;
-        if (entries?.length > 0) {
-          //run to save and execute the entries
-          self
-            .saveEntry(entries, prefix)
-            .then(() => resolve())
-            .catch(reject);
+        if (entries && entries.length > 0) {
+          // Run to save and extract the entries
+          await self.saveEntry(entries, prefix);
+          resolve();
         } else {
-          console.log(chalk.red(`no entries found`));
+          console.log(
+            chalk.red(entries ? 'No entries found' : 'Invalid entries data')
+          );
           resolve();
         }
       } catch (error) {
+        console.error('Error in getAllEntries:', error);
         reject(error);
       }
     });
@@ -383,33 +399,19 @@ ExtractEntries.prototype = {
 
 module.exports = ExtractEntries;
 
-// this function speically made to match title
+// this function speially made to match title
 function getDisplayName(key, dispalyField) {
   let path = '';
   Object.entries(dispalyField).forEach(([item, value]) => {
     if (
-      item.replace(/[^a-zA-Z0-9]+/g, '').toLocaleLowerCase() ===
-      key.toLowerCase()
+      value.sys.id === key &&
+      value.fields.title &&
+      value.fields.title['en-US']
     ) {
-      path = value.displayField;
+      path = value.fields.title['en-US']
+        .replace(/[^a-zA-Z0-9]+/g, '-')
+        .toLowerCase();
     }
   });
   return path;
-}
-
-// Update the handleDuplicateTitles function
-function handleDuplicateTitles(titles, currentTitle, uid) {
-  if (!currentTitle) return currentTitle;
-
-  const titleKey = currentTitle.toLowerCase().trim();
-
-  if (titles.has(titleKey)) {
-    // Add uid suffix to create unique title
-    const uniqueTitle = `${currentTitle} - ${uid}`;
-    titles.add(titleKey); // Add to set to track
-    return uniqueTitle;
-  }
-
-  titles.add(titleKey);
-  return currentTitle;
 }
