@@ -56,6 +56,7 @@ const migFunction = () => {
     .then(async (answer) => {
       try {
         global.filePath = undefined;
+        _export = []; // Clear the export array before loading modules
         for (var i = 0, total = moduleList.length; i < total; i++) {
           //to export all the modules we want to import
           try {
@@ -117,63 +118,6 @@ const migFunction = () => {
           });
           errorLogger(error);
         });
-    });
-
-  try {
-    global.filePath = undefined;
-    for (var i = 0, total = moduleList.length; i < total; i++) {
-      //to export all the modules we want to import
-      try {
-        var ModuleExport = require('./libs/' + moduleList[i] + '.js');
-        var moduleExport = new ModuleExport();
-        _export.push(
-          (function (moduleExport, moduleName) {
-            return function () {
-              return moduleExport.start('cs').catch((error) => {
-                console.error(`Error in module ${moduleName}:`, error);
-                throw error;
-              });
-            };
-          })(moduleExport, moduleList[i])
-        );
-      } catch (moduleError) {
-        console.error(`Error loading module ${moduleList[i]}:`, moduleError);
-        throw moduleError;
-      }
-    }
-  } catch (err) {
-    console.log('error message', err.message);
-  }
-  var taskResults = sequence(_export);
-  taskResults
-    .then(async function (results) {
-      console.log(chalk.green('\nContenful Data exporting has been completed'));
-
-      try {
-        const handleDuplicateTitle = require('./libs/handleDuplicateTitle');
-        await handleDuplicateTitle(); // Add await here
-
-        setTimeout(async () => {
-          await cliUpdate();
-          console.log(
-            `See Logs folder for changed UIDs here`,
-            chalk.yellow(`${path.join(process.cwd(), 'logs')}\n`)
-          );
-
-          process.exit(0);
-        }, 10000);
-      } catch (error) {
-        console.error('Error handling duplicate titles:', error);
-        errorLogger(error);
-      }
-    })
-    .catch(function (error) {
-      console.error('Full error details:', {
-        message: error?.message,
-        stack: error?.stack,
-        name: error?.name,
-      });
-      errorLogger(error);
     });
 };
 

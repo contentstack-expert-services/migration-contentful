@@ -111,6 +111,7 @@ ExtractAssets.prototype = {
             fs.existsSync(path.resolve(assetFolderPath, assets.sys.id, name))
           ) {
             // successLogger("asset already present " + "'" + assets.sys.id + "'");
+            self.customBar.increment();
             resolve(assets.sys.id);
           } else {
             try {
@@ -261,6 +262,12 @@ ExtractAssets.prototype = {
               .catch(function () {
                 reject();
               });
+          } else {
+            console.log(
+              '⚠️  Assets skipped because global.filePath is set to:',
+              global.filePath
+            );
+            resolve();
           }
         } else {
           errorLogger('no assets found');
