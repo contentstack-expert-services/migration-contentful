@@ -10,6 +10,7 @@ var mkdirp = require('mkdirp'),
  * Internal module Dependencies .
  */
 
+const config = require('../config');
 var helper = require('../utils/helper');
 
 var extensionConfig = config.contentful.extensions.filename,

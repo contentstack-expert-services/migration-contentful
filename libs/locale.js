@@ -13,6 +13,7 @@ var mkdirp = require('mkdirp'),
 
 const cliProgress = require('cli-progress');
 const colors = require('ansi-colors');
+const config = require('../config');
 
 var helper = require('../utils/helper');
 
@@ -124,10 +125,11 @@ ExtractLocale.prototype = {
       var locales = alldata.locales;
       if (locales) {
         if (locales.length > 0) {
-          if (!filePath) {
+          if (!global.filePath) {
             //run to save and excrete the locales
-            self.saveLocale(locales);
-            resolve();
+            self.saveLocale(locales)
+              .then(() => resolve())
+              .catch((error) => reject(error));
           }
         } else {
           console.log(chalk.red(`\nno locales found`));

@@ -7,7 +7,7 @@ const cliUpdate = async () => {
       await ModuleExport();
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 

@@ -163,7 +163,7 @@ function contentfulTypeMapper(data) {
     }
     return schemaArray;
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 }
 module.exports = { contentfulTypeMapper };

@@ -10,6 +10,7 @@ var path = require('path'),
  * Internal module Dependencies .
  */
 
+const config = require('../config');
 const helper = require('../utils/helper');
 
 var assetConfig = config.modules.asset,
@@ -56,7 +57,7 @@ ExtractFolders.prototype = {
 
         resolve();
       } catch (error) {
-        console.log(error);
+        console.error(error);
         reject();
       }
     });

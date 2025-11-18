@@ -10,6 +10,7 @@ var mkdirp = require("mkdirp"),
  * Internal module Dependencies .
  */
 
+const config = require('../config');
 var helper = require("../utils/helper");
 
 var referenceConfig = config.contentful.reference.filename,
@@ -57,10 +58,11 @@ ExtractReference.prototype = {
       var entries = alldata.entries;
       if (entries) {
         if (entries.length > 0) {
-          if (!filePath) {
+          if (!global.filePath) {
             //run to save and excrete the entries
-            self.saveReference(entries);
-            resolve();
+            self.saveReference(entries)
+              .then(() => resolve())
+              .catch((error) => reject(error));
           }
         } else {
           errorLogger("no entries found");

@@ -15,6 +15,7 @@ const colors = require('ansi-colors');
  * Internal module Dependencies .
  */
 
+const config = require('../config');
 var helper = require('../utils/helper');
 
 var contentfulFolderPath = path.resolve(
@@ -103,7 +104,7 @@ ExtractContent.prototype = {
         });
         resolve();
       } catch (error) {
-        console.log(error);
+        console.error(error);
         reject();
       }
     });
@@ -119,10 +120,12 @@ ExtractContent.prototype = {
         var editorInterface = alldata.editorInterfaces;
         if (contentTypes) {
           if (contentTypes.length > 0) {
-            if (!filePath) {
+            if (!global.filePath) {
               //run to save and excrete the contentTypes
-              self.saveContentType(contentTypes, editorInterface, prefix);
-              resolve();
+              self
+                .saveContentType(contentTypes, editorInterface, prefix)
+                .then(() => resolve())
+                .catch((error) => reject(error));
             }
           } else {
             console.log(chalk.red('no content-type found'));
@@ -133,7 +136,7 @@ ExtractContent.prototype = {
           resolve();
         }
       } catch (error) {
-        console.log(error);
+        console.error(error);
         reject();
       }
     });

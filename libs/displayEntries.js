@@ -10,6 +10,7 @@ var mkdirp = require("mkdirp"),
  * Internal module Dependencies .
  */
 
+const config = require('../config');
 var helper = require("../utils/helper");
 
 var displayEntriesConfig = config.contentful.displayEntries.filename,
@@ -61,10 +62,11 @@ ExtractDisplayEntries.prototype = {
       var entries = alldata.contentTypes;
       if (entries) {
         if (entries.length > 0) {
-          if (!filePath) {
+          if (!global.filePath) {
             //run to save and excrete the entries
-            self.saveDisplayEntry(entries);
-            resolve();
+            self.saveDisplayEntry(entries)
+              .then(() => resolve())
+              .catch((error) => reject(error));
           }
         } else {
           errorLogger("no entries found");

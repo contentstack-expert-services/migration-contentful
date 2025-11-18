@@ -11,6 +11,7 @@ var mkdirp = require('mkdirp'),
 /**
  * Internal module Dependencies .
  */
+const config = require('../config');
 var helper = require('../utils/helper.js');
 
 var contentstackFolderPath = path.resolve(config.data, config.contenttypes);

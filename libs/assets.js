@@ -17,6 +17,7 @@ const colors = require('ansi-colors');
  * Internal module Dependencies .
  */
 
+const config = require('../config');
 var helper = require('../utils/helper');
 
 var assetConfig = config.modules.asset,
@@ -189,7 +190,7 @@ ExtractAssets.prototype = {
           resolve(assets.sys.id);
         }
       } catch (error) {
-        console.log(error);
+        console.error(error);
         reject();
       }
     });
@@ -235,7 +236,7 @@ ExtractAssets.prototype = {
             resolve();
           });
       } catch (error) {
-        console.log(error);
+        console.error(error);
         reject();
       }
     });
@@ -251,7 +252,7 @@ ExtractAssets.prototype = {
       var assets = alldata.assets;
       if (assets) {
         if (assets.length > 0) {
-          if (!filePath) {
+          if (!global.filePath) {
             self
               .getAsset(assets)
               .then(function () {

@@ -10,6 +10,7 @@ var mkdirp = require('mkdirp'),
  * Internal module Dependencies .
  */
 
+const config = require('../config');
 var helper = require('../utils/helper');
 
 var defaultLocaleConfig = config.contentful.defaultLocale.filename,
@@ -59,10 +60,11 @@ ExtractLocale.prototype = {
       var locales = alldata.locales;
       if (locales) {
         if (locales.length > 0) {
-          if (!filePath) {
+          if (!global.filePath) {
             //run to save and excrete the locales
-            self.saveLocale(locales);
-            resolve();
+            self.saveLocale(locales)
+              .then(() => resolve())
+              .catch((error) => reject(error));
           }
         } else {
           errorLogger('no locales found');

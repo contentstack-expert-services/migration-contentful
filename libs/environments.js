@@ -14,6 +14,7 @@ const colors = require('ansi-colors');
  * Internal module Dependencies .
  */
 
+const config = require('../config');
 var helper = require('../utils/helper');
 
 var environmentsConfig = config.modules.environments.fileName,
@@ -106,10 +107,11 @@ ExtractEnvironments.prototype = {
       var environments = alldata.editorInterfaces;
       if (environments) {
         if (environments.length > 0) {
-          if (!filePath) {
+          if (!global.filePath) {
             //run to save and excrete the environments
-            self.saveEnvironment(environments);
-            resolve();
+            self.saveEnvironment(environments)
+              .then(() => resolve())
+              .catch((error) => reject(error));
           }
         } else {
           console.log(chalk.red(`\nno environments found`));

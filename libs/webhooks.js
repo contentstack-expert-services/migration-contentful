@@ -15,6 +15,7 @@ const chalk = require("chalk");
  * Internal module Dependencies .
  */
 
+const config = require('../config');
 var helper = require("../utils/helper");
 
 var webhooksConfig = config.modules.webhooks.fileName,
@@ -296,10 +297,11 @@ ExtractWebhooks.prototype = {
       var webhooks = alldata.webhooks;
       if (webhooks) {
         if (webhooks.length > 0) {
-          if (!filePath) {
+          if (!global.filePath) {
             //run to save and excrete the webhooks
-            self.saveWebhook(webhooks);
-            resolve();
+            self.saveWebhook(webhooks)
+              .then(() => resolve())
+              .catch((error) => reject(error));
           }
         } else {
           console.log(chalk.red(`\nno webhooks found`));

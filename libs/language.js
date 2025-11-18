@@ -15,6 +15,7 @@ const colors = require('ansi-colors');
  * Internal module Dependencies .
  */
 
+const config = require('../config');
 var helper = require('../utils/helper');
 
 var languageConfig = config.contentful.language.filename,
@@ -84,10 +85,11 @@ ExtractLocale.prototype = {
       var locales = alldata.locales;
       if (locales) {
         if (locales.length > 0) {
-          if (!filePath) {
+          if (!global.filePath) {
             //run to save and excrete the locales
-            self.saveLocale(locales);
-            resolve();
+            self.saveLocale(locales)
+              .then(() => resolve())
+              .catch((error) => reject(error));
           }
         } else {
           console.log(chalk.red(`\nno locales found`));

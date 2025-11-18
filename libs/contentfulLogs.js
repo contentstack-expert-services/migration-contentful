@@ -10,6 +10,7 @@ var mkdirp = require('mkdirp'),
  * Internal module Dependencies .
  */
 
+const config = require('../config');
 var helper = require('../utils/helper');
 
 var logsFolder = path.resolve(process.cwd(), 'logs');
@@ -30,7 +31,7 @@ ExtractContentFul.prototype = {
             (process.cwd(), `${config.data}/${config.contentful.contentful}`)
           ),
           (err, files) => {
-            if (err) throw console.log(err.message);
+            if (err) throw console.error(err.message);
             else {
               let jsonArray = [],
                 fieldArray = [];
@@ -86,7 +87,7 @@ ExtractContentFul.prototype = {
         );
         resolve();
       } catch (error) {
-        console.log(error);
+        console.error(error);
         reject();
       }
       resolve();

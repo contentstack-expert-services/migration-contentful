@@ -61,23 +61,19 @@ const processField = (lang_value, entryId, assetId, lang) => {
 
     // Handle Entry references - return as array with one object
     if (linkType === 'Entry') {
-      console.log(`Processing single entry reference: ${id}`);
-      console.log(`Entry exists in entryId: ${id in entryId}`);
-
       if (id in entryId) {
         return [entryId[id]];
       }
-      return [{
+      return [
+        {
           uid: id,
           _content_type_uid: entryId[id]?._content_type_uid || 'topic_person',
-      }];
+        },
+      ];
     }
 
     // Handle Asset references - return asset object
     if (linkType === 'Asset') {
-      console.log(`Processing single asset reference: ${id}`);
-      console.log(`Asset exists in assetId: ${id in assetId}`);
-
       if (id in assetId) {
         return assetId[id];
       }
@@ -139,12 +135,12 @@ const processField = (lang_value, entryId, assetId, lang) => {
 function handleDuplicateTitles(titlesInLocale, title, lowerKey) {
   let uniqueTitle = title;
   let counter = 1;
-  
+
   while (titlesInLocale.has(uniqueTitle)) {
     uniqueTitle = `${title} ${counter}`;
     counter++;
   }
-  
+
   titlesInLocale.add(uniqueTitle);
   return uniqueTitle;
 }
@@ -177,38 +173,66 @@ ExtractEntries.prototype = {
           title: 'Migrating Entries      ',
         });
 
-        // Pre-load all required data at once
-        const [assetId, entryId, localeId, environmentsId, dispalyField] =
-          await Promise.all([
-            helper.readFile(
-              path.join(process.cwd(), config.data, 'assets', 'assets.json')
-            ),
-            helper.readFile(
-              path.join(
-                process.cwd(),
-                config.data,
-                'references',
-                'reference.json'
-              )
-            ),
-            helper.readFile(
-              path.join(process.cwd(), config.data, 'locales', 'language.json')
-            ),
-            helper.readFile(
-              path.join(
-                process.cwd(),
-                config.data,
-                'environments',
-                'environments.json'
-              )
-            ),
-            helper.readFile(
-              path.join(
-                config.data,
-                `${config.contentful.displayEntries.dirname}/${config.contentful.displayEntries.filename}`
-              )
-            ),
-          ]);
+        // Pre-load all required data at once with error handling
+        let assetId, entryId, localeId, environmentsId, dispalyField;
+
+        try {
+          assetId = helper.readFile(
+            path.join(process.cwd(), config.data, 'assets', 'assets.json')
+          );
+        } catch (error) {
+          console.log('Assets file not found, using empty object');
+          assetId = {};
+        }
+
+        try {
+          entryId = helper.readFile(
+            path.join(
+              process.cwd(),
+              config.data,
+              'references',
+              'reference.json'
+            )
+          );
+        } catch (error) {
+          console.log('References file not found, using empty object');
+          entryId = {};
+        }
+
+        try {
+          localeId = helper.readFile(
+            path.join(process.cwd(), config.data, 'locales', 'language.json')
+          );
+        } catch (error) {
+          console.log('Locales file not found, using empty object');
+          localeId = {};
+        }
+
+        try {
+          environmentsId = helper.readFile(
+            path.join(
+              process.cwd(),
+              config.data,
+              'environments',
+              'environments.json'
+            )
+          );
+        } catch (error) {
+          console.log('Environments file not found, using empty object');
+          environmentsId = {};
+        }
+
+        try {
+          dispalyField = helper.readFile(
+            path.join(
+              config.data,
+              `${config.contentful.displayEntries.dirname}/${config.contentful.displayEntries.filename}`
+            )
+          );
+        } catch (error) {
+          console.log('Display entries file not found, using empty object');
+          dispalyField = {};
+        }
 
         const results = {};
 
@@ -240,9 +264,9 @@ ExtractEntries.prototype = {
                 const newId = idArray.includes(key)
                   ? `${prefix}_${key}`.replace(/[^a-zA-Z0-9]+/g, '_')
                   : key === 'title' &&
-                      typeof Object.values(value)[0] === 'object'
-                    ? `${prefix}_${key}`.replace(/[^a-zA-Z0-9]+/g, '_')
-                    : key;
+                    typeof Object.values(value)[0] === 'object'
+                  ? `${prefix}_${key}`.replace(/[^a-zA-Z0-9]+/g, '_')
+                  : key;
 
                 Object.entries(value).forEach(([lang, lang_value]) => {
                   if (!results[name][lang]) results[name][lang] = {};
@@ -271,7 +295,8 @@ ExtractEntries.prototype = {
         // Write files with additional error handling
         for (const [key, values] of Object.entries(results)) {
           try {
-            const pathName = getDisplayName(key, dispalyField);
+            const pathName =
+              getDisplayName(key, dispalyField, localeId) || 'title';
 
             for (const [localeKey, localeValues] of Object.entries(values)) {
               const newData = {};
@@ -400,18 +425,48 @@ ExtractEntries.prototype = {
 module.exports = ExtractEntries;
 
 // this function speially made to match title
-function getDisplayName(key, dispalyField) {
+function getDisplayName(key, dispalyField, localeId) {
   let path = '';
-  Object.entries(dispalyField).forEach(([item, value]) => {
-    if (
-      value.sys.id === key &&
-      value.fields.title &&
-      value.fields.title['en-US']
-    ) {
-      path = value.fields.title['en-US']
-        .replace(/[^a-zA-Z0-9]+/g, '-')
-        .toLowerCase();
+  try {
+    if (dispalyField && typeof dispalyField === 'object') {
+      Object.entries(dispalyField).forEach(([item, value]) => {
+        if (
+          value &&
+          value.sys &&
+          value.sys.id === key &&
+          value.fields &&
+          value.fields.title
+        ) {
+          // Get available locales from the locale data or fallback to common ones
+          const availableLocales =
+            localeId && typeof localeId === 'object'
+              ? Object.keys(localeId)
+              : ['en-US', 'en', 'en-us'];
+
+          // Try to find title in any available locale
+          for (const locale of availableLocales) {
+            if (value.fields.title[locale]) {
+              path = value.fields.title[locale]
+                .replace(/[^a-zA-Z0-9]+/g, '-')
+                .toLowerCase();
+              break;
+            }
+          }
+
+          // If no locale-specific title found, try to get the first available title
+          if (!path && value.fields.title) {
+            const titleKeys = Object.keys(value.fields.title);
+            if (titleKeys.length > 0) {
+              path = value.fields.title[titleKeys[0]]
+                .replace(/[^a-zA-Z0-9]+/g, '-')
+                .toLowerCase();
+            }
+          }
+        }
+      });
     }
-  });
+  } catch (error) {
+    console.error(`Error in getDisplayName for key ${key}:`, error.message);
+  }
   return path;
 }
