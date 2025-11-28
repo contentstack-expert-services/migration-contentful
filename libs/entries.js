@@ -58,24 +58,26 @@ const processField = (lang_value, entryId, assetId, lang) => {
   // Handle system links (Entry or Asset)
   if (lang_value.sys && lang_value.sys.type === 'Link') {
     const { linkType, id } = lang_value.sys;
+    const lowerCaseId = id.toLowerCase();
 
     // Handle Entry references - return as array with one object
     if (linkType === 'Entry') {
-      if (id in entryId) {
-        return [entryId[id]];
+      if (lowerCaseId in entryId) {
+        return [entryId[lowerCaseId]];
       }
       return [
         {
-          uid: id.toLowerCase(),
-          _content_type_uid: entryId[id]?._content_type_uid || 'topic_person',
+          uid: lowerCaseId,
+          _content_type_uid:
+            entryId[lowerCaseId]?._content_type_uid || 'topic_person',
         },
       ];
     }
 
     // Handle Asset references - return asset object
     if (linkType === 'Asset') {
-      if (id in assetId) {
-        return assetId[id];
+      if (lowerCaseId in assetId) {
+        return assetId[lowerCaseId];
       }
     }
     return undefined;
@@ -92,10 +94,11 @@ const processField = (lang_value, entryId, assetId, lang) => {
     const processedArray = lang_value.reduce((acc, item) => {
       if (item?.sys?.id) {
         const { linkType, id } = item.sys;
-        if (linkType === 'Entry' && id in entryId) {
-          acc.push(entryId[id]);
-        } else if (linkType === 'Asset' && id in assetId) {
-          acc.push(assetId[id]);
+        const lowerCaseId = id.toLowerCase();
+        if (linkType === 'Entry' && lowerCaseId in entryId) {
+          acc.push(entryId[lowerCaseId]);
+        } else if (linkType === 'Asset' && lowerCaseId in assetId) {
+          acc.push(assetId[lowerCaseId]);
         }
       } else if (item !== null && typeof item === 'object') {
         const processed = processField(item, entryId, assetId, lang);
@@ -244,13 +247,15 @@ ExtractEntries.prototype = {
 
             const {
               sys: {
-                id,
+                id: originalId,
                 contentType: {
                   sys: { id: name },
                 },
               },
               fields,
             } = entryData;
+
+            const id = originalId.toLowerCase();
 
             if (!results[name]) {
               results[name] = {};

@@ -42,11 +42,12 @@ ExtractRteReference.prototype = {
             fields,
           }
         ) => {
+          const lowerId = id.toLowerCase();
           Object.entries(fields).forEach(([key, value]) => {
             Object.entries(value).forEach(([lang, lang_value]) => {
               entry_data[lang.toLowerCase()] ??= {};
-              entry_data[lang.toLowerCase()][id] ??= {
-                uid: id.toLowerCase(),
+              entry_data[lang.toLowerCase()][lowerId] ??= {
+                uid: lowerId,
                 _content_type_uid: name
                   .replace(/([A-Z])/g, '_$1')
                   .toLowerCase(),
@@ -77,7 +78,8 @@ ExtractRteReference.prototype = {
         if (entries.length > 0) {
           if (!global.filePath) {
             //run to save and excrete the entries
-            self.saveRteReference(entries)
+            self
+              .saveRteReference(entries)
               .then(() => resolve())
               .catch((error) => reject(error));
           }

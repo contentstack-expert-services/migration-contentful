@@ -1,17 +1,17 @@
-"use strict";
+'use strict';
 /**
  * External module Dependencies.
  */
-var mkdirp = require("mkdirp"),
-  path = require("path"),
-  fs = require("fs"),
-  when = require("when");
+var mkdirp = require('mkdirp'),
+  path = require('path'),
+  fs = require('fs'),
+  when = require('when');
 /**
  * Internal module Dependencies .
  */
 
 const config = require('../config');
-var helper = require("../utils/helper");
+var helper = require('../utils/helper');
 
 var referenceConfig = config.contentful.reference.filename,
   referneceFolderPath = path.resolve(
@@ -34,10 +34,11 @@ ExtractReference.prototype = {
       );
       for (const entry of entries) {
         var title = entry.sys.id;
-        referenceJSON[title] = {
-          uid: title.toLowerCase(),
+        var lowerTitle = title.toLowerCase();
+        referenceJSON[lowerTitle] = {
+          uid: lowerTitle,
           _content_type_uid: entry.sys.contentType.sys.id
-            .replace(/([A-Z])/g, "_$1")
+            .replace(/([A-Z])/g, '_$1')
             .toLowerCase(),
         };
       }
@@ -60,16 +61,17 @@ ExtractReference.prototype = {
         if (entries.length > 0) {
           if (!global.filePath) {
             //run to save and excrete the entries
-            self.saveReference(entries)
+            self
+              .saveReference(entries)
               .then(() => resolve())
               .catch((error) => reject(error));
           }
         } else {
-          errorLogger("no entries found");
+          errorLogger('no entries found');
           resolve();
         }
       } else {
-        errorLogger("no entries found");
+        errorLogger('no entries found');
         resolve();
       }
     });
