@@ -22,23 +22,28 @@ var helper = require('../utils/helper');
 
 var assetConfig = config.modules.asset,
   assetFolderPath = path.resolve(config.data, assetConfig.dirName),
-  assetMasterFolderPath = path.resolve(process.cwd(), 'logs', 'assets'),
-  failedJSON =
-    helper.readFile(path.join(assetMasterFolderPath, 'cs_failed.json')) || {};
+  assetMasterFolderPath = path.resolve(process.cwd(), 'logs', 'assets');
+
+// Ensure the logs/assets directory exists before trying to read cs_failed.json
+if (!fs.existsSync(assetMasterFolderPath)) {
+  mkdirp.sync(assetMasterFolderPath);
+}
+
+var failedJSON = {};
+var failedJSONPath = path.join(assetMasterFolderPath, 'cs_failed.json');
+if (fs.existsSync(failedJSONPath)) {
+  failedJSON = helper.readFile(failedJSONPath) || {};
+}
 
 if (!fs.existsSync(assetFolderPath)) {
   mkdirp.sync(assetFolderPath);
   helper.writeFile(path.join(assetFolderPath, assetConfig.fileName));
-  mkdirp.sync(assetMasterFolderPath);
   if (!fs.existsSync(path.join(config.data, config.json_filename))) {
     helper.writeFile(path.join(config.data, config.json_filename));
   }
 } else {
   if (!fs.existsSync(path.join(assetFolderPath, assetConfig.fileName)))
     helper.writeFile(path.join(assetFolderPath, assetConfig.fileName));
-  if (!fs.existsSync(assetMasterFolderPath)) {
-    mkdirp.sync(assetMasterFolderPath);
-  }
 }
 
 //Reading a File
