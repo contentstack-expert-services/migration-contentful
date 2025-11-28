@@ -101,6 +101,7 @@ ExtractAssets.prototype = {
           }
           var url = `https:${Object.values(assets?.fields?.file)[0]?.url}`;
           var assetTitle = Object.values(assets?.fields?.title)[0];
+          var assetUid = assets.sys.id.toLowerCase();
           var name = Object.values(assets?.fields?.file)[0].fileName;
           var description;
           for (const desc of Object.values(assets?.fields)) {
@@ -112,25 +113,23 @@ ExtractAssets.prototype = {
             }
           }
           name = path.basename(name);
-          if (
-            fs.existsSync(path.resolve(assetFolderPath, assets.sys.id, name))
-          ) {
-            // successLogger("asset already present " + "'" + assets.sys.id + "'");
+          if (fs.existsSync(path.resolve(assetFolderPath, assetUid, name))) {
+            // successLogger("asset already present " + "'" + ass + "'");
             self.customBar.increment();
-            resolve(assets.sys.id);
+            resolve(assetUid);
           } else {
             try {
               const response = await axios.get(url, {
                 responseType: 'arraybuffer',
               });
-              mkdirp.sync(path.resolve(assetFolderPath, assets.sys.id));
+              mkdirp.sync(path.resolve(assetFolderPath, assetUid));
               fs.writeFileSync(
-                path.join(assetFolderPath, assets.sys.id, name),
+                path.join(assetFolderPath, assetUid, name),
                 response.data
               );
-              assetData[assets.sys.id] = {
-                uid: assets.sys.id.toLowerCase(),
-                urlPath: `/assets/${assets.sys.id}`,
+              assetData[assetUid] = {
+                uid: assetUid,
+                urlPath: `/assets/${assetUid}`,
                 status: true,
                 content_type: Object.values(assets?.fields?.file)[0]
                   ?.contentType,
@@ -150,26 +149,26 @@ ExtractAssets.prototype = {
               // to create JSON file of assets in same folder where it is downloaded
               const assetVersionInfoFile = path.resolve(
                 assetFolderPath,
-                assets.sys.id,
-                `_contentstack_${assets.sys.id}.json`
+                assetUid,
+                `_contentstack_${assetUid}.json`
               );
               //writing the json object in same created json file
               helper.writeFile(
                 assetVersionInfoFile,
-                JSON.stringify(assetData[assets.sys.id], null, 4)
+                JSON.stringify(assetData[assetUid], null, 4)
               );
 
-              if (failedJSON[assets.sys.id]) {
-                delete failedJSON[assets.sys.id];
+              if (failedJSON[assetUid]) {
+                delete failedJSON[assetUid];
               }
 
               self.customBar.increment();
             } catch (err) {
               if (err) {
-                failedJSON[assets.sys.id] = err;
+                failedJSON[assetUid] = err;
                 if (retryCount == 1) {
-                  failedJSON[assets.sys.id] = {
-                    failedUid: assets.sys.id,
+                  failedJSON[assetUid] = {
+                    failedUid: assetUid,
                     name: assetTitle,
                     url: url,
                     file_size: `${
@@ -181,7 +180,7 @@ ExtractAssets.prototype = {
                     path.join(assetMasterFolderPath, 'cs_failed.json'),
                     JSON.stringify(failedJSON, null, 4)
                   );
-                  resolve(assets.sys.id);
+                  resolve(assetUid);
                 } else {
                   self.saveAsset(assets, 1).then(function (results) {
                     resolve();
@@ -189,11 +188,11 @@ ExtractAssets.prototype = {
                 }
               }
             }
-            resolve(assets.sys.id);
+            resolve(assetUid);
           }
         } else {
           self.customBar.increment();
-          resolve(assets.sys.id);
+          resolve(assetUid);
         }
       } catch (error) {
         console.error(error);
