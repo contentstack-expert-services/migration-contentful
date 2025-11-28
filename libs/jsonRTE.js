@@ -364,10 +364,12 @@ function parseBlockReference(obj, lang) {
   children = [{ text: '' }];
   attrs = {};
 
+  const targetId = obj.data.target.sys.id.toLowerCase();
+
   if (masterLocale === lang) {
     for (const [arrayKey, arrayValue] of Object.entries(entryId)) {
       for (const [accessKey, accessValue] of Object.entries(arrayValue)) {
-        if (accessKey === obj.data.target.sys.id && lang === arrayKey) {
+        if (accessKey === targetId && lang === arrayKey) {
           attrs = {
             'display-type': 'block',
             type: 'entry',
@@ -382,7 +384,7 @@ function parseBlockReference(obj, lang) {
   } else {
     for (const [arrayKey, arrayValue] of Object.entries(entryId)) {
       for (const [accessKey, accessValue] of Object.entries(arrayValue)) {
-        if (accessKey === obj.data.target.sys.id && lang === arrayKey) {
+        if (accessKey === targetId && lang === arrayKey) {
           attrs = {
             'display-type': 'block',
             type: 'entry',
@@ -413,18 +415,20 @@ function parseInlineReference(obj, lang) {
   let children = [{ text: '' }];
   let attrs = {};
 
+  const targetId = obj.data.target.sys.id.toLowerCase();
+
   const entryFound = Object.entries(entryId).find(([arrayKey, arrayValue]) => {
-    return arrayKey === lang && arrayValue[obj.data.target.sys.id];
+    return arrayKey === lang && arrayValue[targetId];
   });
 
   if (entryFound) {
     const [arrayKey, arrayValue] = entryFound;
-    const accessValue = arrayValue[obj.data.target.sys.id];
+    const accessValue = arrayValue[targetId];
     attrs = {
       'display-type': 'block',
       type: 'entry',
       'class-name': 'embedded-entry redactor-component block-entry',
-      'entry-uid': obj.data.target.sys.id,
+      'entry-uid': targetId,
       locale: arrayKey,
       'content-type-uid': accessValue._content_type_uid,
     };
@@ -447,15 +451,17 @@ function parseBlockAsset(obj) {
   let children = [{ text: '' }];
   let attrs = {};
 
-  if (obj.data.target.sys.id in assetId) {
+  const targetAssetId = obj.data.target.sys.id.toLowerCase();
+
+  if (targetAssetId in assetId) {
     type = 'reference';
     attrs = {
       'display-type': 'download',
-      'asset-uid': obj.data.target.sys.id,
+      'asset-uid': targetAssetId,
       'content-type-uid': 'sys_assets',
-      'asset-link': assetId[obj.data.target.sys.id].url,
-      'asset-name': assetId[obj.data.target.sys.id].filename,
-      'asset-type': assetId[obj.data.target.sys.id].content_type,
+      'asset-link': assetId[targetAssetId].url,
+      'asset-name': assetId[targetAssetId].filename,
+      'asset-type': assetId[targetAssetId].content_type,
       type: 'asset',
       'class-name': 'embedded-asset',
       inline: false,
@@ -645,16 +651,19 @@ function parseAssetHyperlink(obj) {
   let uid = 'reference' + Math.floor(Math.random() * 100000000000000);
   let children = [];
   let attrs = {};
-  if (obj.data.target.sys.id in assetId) {
+
+  const targetAssetId = obj.data.target.sys.id.toLowerCase();
+
+  if (targetAssetId in assetId) {
     type = 'reference';
     attrs = {
       'display-type': 'link',
       type: 'asset',
       'class-name': 'embedded-entry redactor-component undefined-entry',
-      'asset-uid': obj.data.target.sys.id,
+      'asset-uid': targetAssetId,
       'content-type-uid': 'sys_assets',
       target: '_blank',
-      href: assetId[obj.data.target.sys.id].url,
+      href: assetId[targetAssetId].url,
     };
     obj.content.forEach((e) => children.push(parsers.get(e.nodeType)(e)));
     children = children.map((c) => {
@@ -684,9 +693,11 @@ function parseEntryHyperlink(obj, lang) {
   children = [];
   attrs = {};
 
+  const targetId = obj.data.target.sys.id.toLowerCase();
+
   for (const [arrayKey, arrayValue] of Object.entries(entryId)) {
     for (const [accessKey, accessValue] of Object.entries(arrayValue)) {
-      if (accessKey === obj.data.target.sys.id) {
+      if (accessKey === targetId) {
         attrs = {
           'display-type': 'block',
           type: 'entry',
