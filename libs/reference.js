@@ -35,7 +35,7 @@ ExtractReference.prototype = {
       for (const entry of entries) {
         var title = entry.sys.id;
         referenceJSON[title] = {
-          uid: title,
+          uid: title.toLowerCase(),
           _content_type_uid: entry.sys.contentType.sys.id
             .replace(/([A-Z])/g, "_$1")
             .toLowerCase(),

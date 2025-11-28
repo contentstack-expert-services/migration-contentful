@@ -64,7 +64,7 @@ ExtractLocale.prototype = {
           code: `${localeData.code.toLowerCase()}`,
           name: `${localeData.name}`,
           fallback_locale: '',
-          uid: `${title}`,
+          uid: `${title.toLowerCase()}`,
         };
         self.customBar.increment();
       });

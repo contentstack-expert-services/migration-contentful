@@ -66,7 +66,7 @@ const processField = (lang_value, entryId, assetId, lang) => {
       }
       return [
         {
-          uid: id,
+          uid: id.toLowerCase(),
           _content_type_uid: entryId[id]?._content_type_uid || 'topic_person',
         },
       ];

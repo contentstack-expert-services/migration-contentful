@@ -80,7 +80,7 @@ ExtractContent.prototype = {
                         .replace(/([A-Z])/g, '_$1')
                         .toLowerCase(),
                       contentDescription: content.description,
-                      contentfulID: content.sys.id,
+                      contentfulID: content.sys.id.toLowerCase(),
                       ...valueType,
                       ...valueEditor,
                       contentNames: contentName,

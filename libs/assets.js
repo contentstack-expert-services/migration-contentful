@@ -124,7 +124,7 @@ ExtractAssets.prototype = {
                 response.data
               );
               assetData[assets.sys.id] = {
-                uid: assets.sys.id,
+                uid: assets.sys.id.toLowerCase(),
                 urlPath: `/assets/${assets.sys.id}`,
                 status: true,
                 content_type: Object.values(assets?.fields?.file)[0]

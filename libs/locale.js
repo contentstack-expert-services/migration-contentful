@@ -83,7 +83,7 @@ ExtractLocale.prototype = {
             localeList[localeData.code.toLowerCase()] ||
             'English - United States',
           fallback_locale: '',
-          uid: `${title}`,
+          uid: `${title.toLowerCase()}`,
         };
 
         if (localeData.default === true) {

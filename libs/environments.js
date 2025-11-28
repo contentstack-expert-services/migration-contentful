@@ -76,7 +76,7 @@ ExtractEnvironments.prototype = {
 
         if (isUnique) {
           environmentsJSON[title] = {
-            uid: title,
+            uid: title.toLowerCase(),
             urlPath: `/environments/${
               env?.sys?.environment?.sys?.id || 'master'
             }`,

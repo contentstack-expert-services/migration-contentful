@@ -46,7 +46,7 @@ ExtractRteReference.prototype = {
             Object.entries(value).forEach(([lang, lang_value]) => {
               entry_data[lang.toLowerCase()] ??= {};
               entry_data[lang.toLowerCase()][id] ??= {
-                uid: id,
+                uid: id.toLowerCase(),
                 _content_type_uid: name
                   .replace(/([A-Z])/g, '_$1')
                   .toLowerCase(),
